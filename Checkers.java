@@ -5,17 +5,14 @@ import javax.swing.*;
 
 public class Checkers extends JApplet implements ActionListener {
 
-	/*  Draw a red-and-black checkerboard.
-	    Each square is 63 pixels, making for a board of 504 pixels.  
-	 */
-
 
 	// TODO: Make private fields and methods
+	// TODO: Throw exceptions
+	// TODO: Refactor
 
 
 	// Array representing the board
 	Object[][] grid = new Object[8][8];
-
 
 	// Pale colors for the board
 	Color pred = new Color(255, 128, 128);
@@ -25,9 +22,16 @@ public class Checkers extends JApplet implements ActionListener {
 	Color red = Color.red;
 	Color black = Color.black;
 
-	Display display;
-	PiecesLayer piecesLayer;
-	JLayeredPane lp;
+	int numr, numb = 12; // initial number of pieces
+	
+	JLabel turn; // Whose turn is it?
+	JLabel winner;
+	boolean gameOver = false;
+
+	Display display; 	 // the board
+	PiecesLayer piecesLayer; // the pieces
+	JLayeredPane lp;	 // wrapper for board and pieces
+
 
 	class Display extends JPanel {
 
@@ -37,6 +41,10 @@ public class Checkers extends JApplet implements ActionListener {
 		}
 
 		public void paint(Graphics g){
+
+		/*  Draw a red-and-black checkerboard.
+	 	   Each square is 63 pixels, making for a board of 504 pixels.  
+		 */
 
 			int row;   // Row number, from 0 to 7
 			int col;   // Column number, from 0 to 7
@@ -121,7 +129,7 @@ public class Checkers extends JApplet implements ActionListener {
 		// Use a Layered Pane to hold the board
 		lp = new JLayeredPane();
 		lp.setPreferredSize(new Dimension(504, 504)); 
-		// Giving it a Layout messes with transparency, must use positioning
+		// Layout messes with layering, must use absolute positions
 //		lp.setLayout(new BorderLayout()); 
 		getContentPane().add(lp, BorderLayout.CENTER);
 
@@ -141,9 +149,6 @@ public class Checkers extends JApplet implements ActionListener {
 
 //		lp.add(piecesLayer, BorderLayout.CENTER, new Integer(20));
 //		getContentPane().add(piecesLayer, BorderLayout.CENTER);
-
-
-
 
 		System.out.println("--- Current Board:");
 		printBoard();
@@ -180,21 +185,32 @@ public class Checkers extends JApplet implements ActionListener {
 
 
 	public void initControls() {
-
-
 		// Draw the controls
-		JPanel buttons = new JPanel();
-		buttons.setBackground(Color.gray);
+		JPanel controls = new JPanel();
+		controls.setBackground(Color.gray);
 
-		JButton redButton = new JButton("Red");
-		redButton.addActionListener(this);	
-		buttons.add(redButton); // add to panel
+		JButton move = new JButton("Move Red");
+		move.addActionListener(this);	
+		controls.add(move); // add to panel
 
-		JButton greenButton = new JButton("Green"); // the second button
-		greenButton.addActionListener(this);
-		buttons.add(greenButton);
+/*
+		JButton blackButton = new JButton("Move Black");
+		blackButton.addActionListener(this);
+		controls.add(blackButton);
+*/
 
-		getContentPane().add(buttons, BorderLayout.SOUTH);
+
+		turn = new JLabel("Red starts.");
+		controls.add(turn);
+
+		winner = new JLabel("No winner yet.");	
+		controls.add(winner);	
+
+		JButton reset = new JButton("Reset");
+		reset.addActionListener(this);
+		controls.add(reset);
+
+		getContentPane().add(controls, BorderLayout.SOUTH);
 
 
 	}
@@ -216,12 +232,78 @@ public class Checkers extends JApplet implements ActionListener {
 
 
 	public void actionPerformed(ActionEvent evt) { 
-
+		// Event listenrs for buttons
 		String command = evt.getActionCommand();
 		System.out.println("Button: " + command);
 
+		if("Move Red".equals(command)) {
+			// Just playing around.  Move the red one at 2, 2 forward one space
+			grid[2][0] = 0;
+			// Check validity of move
+			grid[3][0] = "r";
+			piecesLayer.repaint();
+			System.out.println("--- Moved a red piece:");
+			printBoard();
+			
+			
+
+		}
+		else if("Move Black".equals(command)) {
+
+		}
+		else if("Reset".equals(command)) {
+
+			initGrid();
+			piecesLayer.repaint();
+			System.out.println("--- Reset Grid:");
+			printBoard();
+		}
+
 	}
 
+
+	public void play() {
+
+		while(!gameOver) {
+			moveRed();
+			moveBlack();
+		}
+
+		System.out.println("Game Over!");
+		winner.setText("A player won!");
+
+
+
+	}
+
+	public void moveRed() {
+		turn.setText("It's red's turn");
+		move("r");
+	}
+
+	public void moveBlack() {
+		turn.setText("It's black's turn");
+
+		move("b");
+
+		if(true) {
+			gameOver = true;
+		}
+	}
+
+
+	public void move(String s) {
+	// Where most of the game play occurs
+
+	// Move through the grid looking for the first piece of your color with a viable move
+	// Make the move
+	// Check for jumps and kings
+	// Update pieces count if necessary
+	// Check if you won yet.
+	// Keep moving until your turn is over.
+	// Require clicks to advance the game, otherwise it'd be too fast!
+
+	}
 
 
 	public void init() {
@@ -229,6 +311,7 @@ public class Checkers extends JApplet implements ActionListener {
 		initGrid();
 		drawBoard();
 		initControls();
+//		play();
 
 
 	}
