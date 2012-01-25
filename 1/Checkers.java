@@ -81,10 +81,10 @@ public class Checkers extends JApplet implements ActionListener {
 			int y;
 
 			for(int i = 0; i < 8; i++) { // row
-				y = 31 * (i+1);
+				y = (63 * i) + 16;
 
 				for(int j = 0; j < 8; j++) { // column
-					x = 31 * (j+1);
+					x = (63 * j + 16);
 					if(grid[i][j].toString().equals("r")) {
 						g.setColor(red);
 						g.fillOval(x, y, 30, 30);					}
