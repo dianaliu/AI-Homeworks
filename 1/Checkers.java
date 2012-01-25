@@ -12,7 +12,13 @@ public class Checkers extends JApplet implements ActionListener {
 
 
 	// Array representing the board
-	Object[][] grid = new Object[8][8];
+	Piece[][] grid = new Piece[8][8];
+
+
+	int RED = 1;
+	int BLACK = -1;
+	int EMPTY = 0;
+
 
 	// Pale colors for the board
 	Color pred = new Color(255, 128, 128);
@@ -23,7 +29,7 @@ public class Checkers extends JApplet implements ActionListener {
 	Color black = Color.black;
 
 	int numr, numb = 12; // initial number of pieces
-	
+
 	JLabel turn; // Whose turn is it?
 	JLabel winner;
 	boolean gameOver = false;
@@ -42,9 +48,9 @@ public class Checkers extends JApplet implements ActionListener {
 
 		public void paint(Graphics g){
 
-		/*  Draw a red-and-black checkerboard.
-	 	   Each square is 63 pixels, making for a board of 504 pixels.  
-		 */
+			/*  Draw a red-and-black checkerboard.
+			    Each square is 63 pixels, making for a board of 504 pixels.  
+			 */
 
 			int row;   // Row number, from 0 to 7
 			int col;   // Column number, from 0 to 7
@@ -59,6 +65,7 @@ public class Checkers extends JApplet implements ActionListener {
 						g.setColor(pred);
 					else
 						g.setColor(pblack);
+
 					g.fillRect(x, y, 63, 63);
 				} 
 
@@ -85,44 +92,150 @@ public class Checkers extends JApplet implements ActionListener {
 
 				for(int j = 0; j < 8; j++) { // column
 					x = (63 * j + 16);
-					if(grid[i][j].toString().equals("r")) {
+
+					if(RED == grid[i][j].color) {
 						g.setColor(red);
-						g.fillOval(x, y, 30, 30);					}
-					else if(grid[i][j].toString().equals("b")) {
+					}
+					else if(BLACK == grid[i][j].color) {
 						g.setColor(black);
-						g.fillOval(x, y, 30, 30);
 					}
 
-				
-				
+					g.fillOval(x, y, 30, 30);
 				}
 			}
 		} // end paint
 
-	
+
 	} // end nested class PiecesLayer
+
+	// --------------------------------------------------------------
+	// --------------------------------------------------------------
+	// --------------------------------------------------------------
+
 
 	class Piece extends Object {
 
-		String color;
-		boolean isKing = false;
+		// What methods should Piece have?
+
+		int color;
+		boolean isKing;
+		int x;
+		int y;
 
 		Piece() {
-			// default Constructor
-			color = "red";  
+			// default Constructor.
+			// Use to construct empty space?
+			this(EMPTY, -1, -1);
 		}
 
-		Piece(String c) {
+		Piece(int c) {
+			this(c, -1, -1);
+		}
+
+		Piece(int c, int x, int y) {
 			color = c;
+			this.x = x;
+			this.y = y;
+			isKing = false;
 		}
 
 		public String toString(){
-			return color;
+			if(color == 1) return "r";
+			else if(color == -1) return "b";
+			else return "0";
 		}
+
+		public int getX() {
+			return x;
+		}
+
+		public int getY() {
+			return y;
+		}
+
+
+
+		// ---------------------------------------------
+
+		public void move() {
+			// Need to loop through grid back to x-1, not just to end.
+			// Start with naive implementation - search to end.
+			for(int i = x; i < grid.length; i++) {
+				for(int j = y; j < grid.length; j++) {
+
+					if(this.color == grid[x][y].color && 
+							grid[x][y].canMove()) {
+						// Code to move the piece
+						// If it's still your turn, call move()
+						// else, return;
+					}
+
+
+				}
+			} // end for loops
+
+		} // end move()
+
+
+
+		// Determines if a piece can move
+		public boolean canMove() {
+
+			// Use color to set what directions you check
+
+			// Check straight ahead
+			if(EMPTY == grid[x][y + (1 * color)].color && 
+					EMPTY == grid[x][y + (2 * color)].color) 			{
+				// Move it forward one step
+				grid[x][y + (2 * color)] = grid[x][y]; 
+				grid[x][y] = new Piece();
+				piecesLayer.repaint();
+
+			}
+
+			// Check left diagonal
+			else if(true) {
+
+
+			}
+			// Check right diagonal
+			else if(true) {
+
+			}	
+
+
+			if(this.isKing) {
+
+				// Kings can move backwards as well
+				// make the move, return true
+				gameOver = true;
+				return true;
+
+			}
+
+
+
+			// A piece can move if it can jump forward diagonally 
+			// OR if it has a (1 or 2?) free space in front of it
+
+
+
+
+			return false;
+
+		} // end canMove()
+
+
 
 	} // end nexted class Pieces
 
 
+
+
+
+	// --------------------------------------------------------------
+	// --------------------------------------------------------------
+	// --------------------------------------------------------------
 
 	public void drawBoard() {
 
@@ -130,16 +243,16 @@ public class Checkers extends JApplet implements ActionListener {
 		lp = new JLayeredPane();
 		lp.setPreferredSize(new Dimension(504, 504)); 
 		// Layout messes with layering, must use absolute positions
-//		lp.setLayout(new BorderLayout()); 
+		//		lp.setLayout(new BorderLayout()); 
 		getContentPane().add(lp, BorderLayout.CENTER);
 
 		// Draw the blank board 
 		display = new Display();
 		display.setBounds(0,0,504,504);
 		lp.add(display, new Integer(0), 0);
-		
-//		lp.add(display, BorderLayout.CENTER, JLayeredPane.DEFAULT_LAYER);
-//		getContentPane().add(display, BorderLayout.CENTER);
+
+		//		lp.add(display, BorderLayout.CENTER, JLayeredPane.DEFAULT_LAYER);
+		//		getContentPane().add(display, BorderLayout.CENTER);
 
 
 		// Draw the pieces
@@ -147,8 +260,8 @@ public class Checkers extends JApplet implements ActionListener {
 		piecesLayer.setBounds(0,0,504,504);
 		lp.add(piecesLayer, new Integer(1), 0);
 
-//		lp.add(piecesLayer, BorderLayout.CENTER, new Integer(20));
-//		getContentPane().add(piecesLayer, BorderLayout.CENTER);
+		//		lp.add(piecesLayer, BorderLayout.CENTER, new Integer(20));
+		//		getContentPane().add(piecesLayer, BorderLayout.CENTER);
 
 		System.out.println("--- Current Board:");
 		printBoard();
@@ -159,7 +272,7 @@ public class Checkers extends JApplet implements ActionListener {
 		// Clear out the grid
 		for(int r = 0; r < 8; r++) {
 			for(int c = 0; c < 8; c++) {
-				grid[r][c] = 0;
+				grid[r][c] = new Piece(EMPTY);
 			}
 		}
 
@@ -167,7 +280,7 @@ public class Checkers extends JApplet implements ActionListener {
 		for(int r = 0; r < 3; r++) {
 			for(int c = 0; c < 8; c++) {
 				if ( (r % 2) == (c % 2) )
-					grid[r][c] = new Piece("r");
+					grid[r][c] = new Piece(RED, r, c);
 			}
 		}
 
@@ -175,7 +288,7 @@ public class Checkers extends JApplet implements ActionListener {
 		for(int r = 5; r < 8; r++) {
 			for(int c = 0; c < 8; c++) {
 				if ( (r % 2) == (c % 2) )
-					grid[r][c] = new Piece("b");
+					grid[r][c] = new Piece(BLACK, r, c);
 
 			}
 		}
@@ -193,11 +306,11 @@ public class Checkers extends JApplet implements ActionListener {
 		move.addActionListener(this);	
 		controls.add(move); // add to panel
 
-/*
-		JButton blackButton = new JButton("Move Black");
-		blackButton.addActionListener(this);
-		controls.add(blackButton);
-*/
+		/*
+		   JButton blackButton = new JButton("Move Black");
+		   blackButton.addActionListener(this);
+		   controls.add(blackButton);
+		 */
 
 
 		turn = new JLabel("Red starts.");
@@ -238,14 +351,14 @@ public class Checkers extends JApplet implements ActionListener {
 
 		if("Move Red".equals(command)) {
 			// Just playing around.  Move the red one at 2, 2 forward one space
-			grid[2][0] = 0;
+			grid[3][0] = grid[2][0];
+			grid[2][0] = new Piece(EMPTY);
 			// Check validity of move
-			grid[3][0] = "r";
 			piecesLayer.repaint();
 			System.out.println("--- Moved a red piece:");
 			printBoard();
-			
-			
+
+
 
 		}
 		else if("Move Black".equals(command)) {
@@ -262,57 +375,30 @@ public class Checkers extends JApplet implements ActionListener {
 	}
 
 
+
+	// --------------------------------------------------------------
+	// --------------------------------------------------------------
+	// --------------------------------------------------------------
+
+
 	public void play() {
 
 		while(!gameOver) {
-			moveRed();
-			moveBlack();
+			grid[0][0].move();			
 		}
 
 		System.out.println("Game Over!");
 		winner.setText("A player won!");
 
 
-
 	}
-
-	public void moveRed() {
-		turn.setText("It's red's turn");
-		move("r");
-	}
-
-	public void moveBlack() {
-		turn.setText("It's black's turn");
-
-		move("b");
-
-		if(true) {
-			gameOver = true;
-		}
-	}
-
-
-	public void move(String s) {
-	// Where most of the game play occurs
-
-	// Move through the grid looking for the first piece of your color with a viable move
-	// Make the move
-	// Check for jumps and kings
-	// Update pieces count if necessary
-	// Check if you won yet.
-	// Keep moving until your turn is over.
-	// Require clicks to advance the game, otherwise it'd be too fast!
-
-	}
-
 
 	public void init() {
 
 		initGrid();
 		drawBoard();
 		initControls();
-//		play();
-
+		play();
 
 	}
 
