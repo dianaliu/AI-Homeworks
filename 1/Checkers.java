@@ -193,43 +193,54 @@ public class Checkers extends JApplet implements ActionListener {
 		public boolean hasNW2() {
 
 			// "this" is not necessary, instance method.
-			if(this.x + (2 * color) < 8 && this.x + (2 * color) > 0	&&						this.y + (2 * color) < 8 && this.y + (2 * color) > 0
-
-			  ) {
+			if(x + (2 * color) < 8 && x + (2 * color) > 0 && 
+			   y + (2 * color) < 8 && y + (2 * color) > 0) {
 				return true;
 			}
 
 			return false;
 		}
 
+	    // Checks if a NE move is possible
+	    public boolean hasNE1() {
+
+		if(x - (1 * color) < 8 && x - (1 * color) > 0 &&
+		   y - (1 * color) < 8 && y - (1 * color) > 0) {
+		    return true;
+		}
+		return false;
+	    }
+
+	    // Checks if a NE move is possible
+	    public boolean hasNE2() {
+
+		if(x - (2 * color) < 8 && x - (2 * color) > 0 &&
+		   y - (2 * color) < 8 && y - (2 * color) > 0) {
+		    return true;
+		}
+		return false;
+	    }
+
 
 		public void move() {
 
-			Piece p = null;
+			Piece p = new Piece(EMPTY, 0, 0);
 			// FIXME: Loop through grid back to x-1, not just to end
 			// Start with naive implementation - search all
 
-			// 0. Find a matching piece
-			for(int i = 0; i < grid.length; i++) {
-				for(int j = 0; j < grid.length; j++) {
-
-					if(this.color == grid[i][j].color) {
-						p = grid[i][j];
-					}
-				}
-			} // end for loops
-
-			if(null == p) {
-				// Couldn't find any pieces of color.  Should've been detected earlier.
-				gameOver = true;
-				return;
+			// 0. Find any same colored piece
+			while(this.color != p.color) {
+				p = grid[(int)(8.0 * Math.random())][(int)(8.0 * Math.random())];
 			}
+	
+			// No pieces left, should be detected earlier.
+			if(EMPTY == p.color) { log(p,p); return; } 	
 
 			// 1. Try moving it.  Color is used for direction.		
 			System.out.println("--- Current = " + p + " at " + p.getCoords());
 
 
-			// Eliglble for a move NW?
+			// --- Eliglble for NW move?
 			if(p.hasNW1()) {
 
 				Piece nw1 =  grid[p.x + (1 * color)][p.y + (1 * color)];
@@ -243,7 +254,6 @@ public class Checkers extends JApplet implements ActionListener {
 					grid[p.x][p.y] = new Piece(EMPTY, p.x, p.y);
 				
 					printBoard();
-
 					piecesLayer.repaint();
 					return;
 
@@ -266,81 +276,68 @@ public class Checkers extends JApplet implements ActionListener {
 						if(nw1.color == RED) numr--;
 						else numb--;
 
-						printBoard();
+						if(0 == numr || 0 ==numb) gameOver = true;
 
+						printBoard();
 						piecesLayer.repaint();
 						return;
 
 
 					}
 
-
 				}
-
-
-
 
 			} // end NW check
 
 
+			// --- Eligible for NE move?
+			if(p.hasNE1()) {
 
+			    Piece ne1 = grid[p.x - (1 * color)][p.y - (1 * color) ];
+			    if(EMPTY == ne1.color) {
+				
+				// move to ne1
+				log(p, ne1);
+				grid[ne1.x][ne1.y] = p;
+				grid[p.x][p.y] = new Piece(EMPTY, p.x, p.y);
+				
+				printBoard();
+				piecesLayer.repaint();
+				return;			    
+			    }
+			    else if(p.hasNE2()) {
+
+				Piece ne2 = grid[p.x - (2 * color)][p.y - (2 * color) ];
+				// ne1 is occupied.  Can we jump?
+				if(EMPTY == ne2.color && this.color != ne1.color) {
+				    // Move to ne2. Eat ne1.
+				    log(p, ne2, ne1);
+				    grid[ne2.x][ne2.y] = p;
+				    grid[ne1.x][ne1.y] = new Piece(EMPTY, ne1.x , ne1.y);
+				    grid[p.x][p.y] = new Piece(EMPTY, p.x, p.y);
+
+				    if(RED == ne1.color) numr--;
+				    else numb--;
+				    if(0 == numr || 0 ==numb) gameOver = true;
+
+				    printBoard();
+				    piecesLayer.repaint();
+				    return;
+				}
+
+			    }
+			    
+			} // end NE check
+
+
+			// --- Eligible to move barkwards? (is King?)
 
 
 			// FIXME: A turn can be more than one move.
-//			gameOver = true;
-
+	
+			// If it hasn't returned by now, look again.
+			this.move();
 		} // end move()
-
-		// Determines if a piece can move
-		public boolean canMove() {
-
-			// Use color to set what directions you check
-
-			// Check straight ahead
-			if(EMPTY == grid[x][y + (1 * color)].color && 
-					EMPTY == grid[x][y + (2 * color)].color) 			{
-				// Move it forward one step
-				grid[x][y + (2 * color)] = grid[x][y]; 
-				grid[x][y] = new Piece();
-				piecesLayer.repaint();
-
-			}
-
-			// Check left diagonal
-			else if(true) {
-
-				piecesLayer.repaint();
-
-			}
-			// Check right diagonal
-			else if(true) {
-				piecesLayer.repaint();
-
-			}	
-
-
-			if(this.isKing) {
-
-				// Kings can move backwards as well
-				// make the move, return true
-				piecesLayer.repaint();
-
-				gameOver = true;
-				return true;
-
-			}
-
-
-
-			// A piece can move if it can jump forward diagonally 
-			// OR if it has a (1 or 2?) free space in front of it
-
-
-
-
-			return false;
-
-		} // end canMove()
 
 
 
@@ -523,8 +520,8 @@ public class Checkers extends JApplet implements ActionListener {
 		initControls();
 //		play();
 
-		System.out.println("Game Over!");
-		winner.setText("A player won!");
+//		System.out.println("Game Over!");
+//		winner.setText("A player won!");
 
 	}
 
