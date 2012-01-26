@@ -102,12 +102,20 @@ public class Checkers extends JApplet implements ActionListener {
 			g.setColor(red);
 			g.fillOval(x, y, 30, 30);
 
+
 		    }
 		    else if(BLACK == grid[i][j].color) {
 			g.setColor(black);
 			g.fillOval(x, y, 30, 30);
 
 		    }
+
+		    
+		    if(grid[i][j].isKing) {
+			g.setColor(Color.white);
+			g.drawString("K", x, y);
+		    }
+			
 
 		}
 	    }
@@ -228,6 +236,27 @@ public class Checkers extends JApplet implements ActionListener {
 	    return false;
 	}
 
+	// Checks if a SW move is possible
+	public boolean hasSW1() {
+	    return false;
+	}
+
+	// Checks if a SW move is possible
+	public boolean hasSW2() {
+	    return false;
+	}
+
+
+	// Checks if a SE move is possible
+	public boolean hasSE1() {
+	    return false;
+	}
+
+	// Checks if a SE move is possible
+	public boolean hasSE2() {
+	    return false;
+	}
+
 	int num = 12;
 	public void move() {
 
@@ -239,8 +268,7 @@ public class Checkers extends JApplet implements ActionListener {
 	    // FIXME: Loop through grid back to x-1, not just to end
 	    // Start with naive implementation - search all
 
-	    // 0. Find any same colored piece
-
+	    // Find any same colored piece
 	    if(numSeen < num) {
 		while((this.color != p.color)) {
 		    p = grid[(int)(8.0 * Math.random())][(int)(8.0 * Math.random())];
@@ -260,6 +288,9 @@ public class Checkers extends JApplet implements ActionListener {
 
 	// try all moves for a piece
 	public void tryAll() {
+
+	    // FIXME: Pieces move up to the middle line, then stop.
+	    // No jumping!
 	    
 	    Piece p = this;
 	    grid[p.x][p.y].seen = true;
@@ -280,6 +311,9 @@ public class Checkers extends JApplet implements ActionListener {
 		    // move to nw1
 		    grid[nw1.x][nw1.y] = p;
 		    grid[p.x][p.y] = new Piece(EMPTY, p.x, p.y);
+
+
+		    if(nw1.madeKing()) grid[nw1.x][nw1.y].isKing = true;
 				
 		    printBoard();
 		    piecesLayer.repaint();
@@ -306,6 +340,9 @@ public class Checkers extends JApplet implements ActionListener {
 
 			if(0 == numr || 0 ==numb) gameOver = true;
 
+
+			if(nw2.madeKing()) grid[nw2.x][nw2.y].isKing = true;
+
 			printBoard();
 			piecesLayer.repaint();
 			return;
@@ -329,6 +366,8 @@ public class Checkers extends JApplet implements ActionListener {
 		    log(p, ne1);
 		    grid[ne1.x][ne1.y] = p;
 		    grid[p.x][p.y] = new Piece(EMPTY, p.x, p.y);
+
+		    if(ne1.madeKing()) grid[ne1.x][ne1.y].isKing = true;
 				
 		    printBoard();
 		    piecesLayer.repaint();
@@ -349,23 +388,47 @@ public class Checkers extends JApplet implements ActionListener {
 			else numb--;
 			if(0 == numr || 0 ==numb) gameOver = true;
 
+			
+			if(ne2.madeKing()) grid[ne2.x][ne2.y].isKing = true;
+
 			printBoard();
 			piecesLayer.repaint();
 			return;
 		    }
-
+		    
 		}
 			    
 	    } // end NE check
 
 
-	    // --- Eligible to move barkwards? (is King?)
+	    // --- Eligible to move backwards?
+	    else if(p.isKing && p.hasSE1()) {
+
+	    }
+
+	    else if(p.isKing && p.hasSW1()) {
+
+	    }
 
 
 	    if(numSeen <= num) this.move();
 	    else gameOver = true;
 	    
 	} // end tryAll
+
+
+	public boolean madeKing() {
+
+	    if(RED == this.color && 7 == this.x) {
+		return true;
+	    }
+	    else if(BLACK == this.color && 0 == this.x) {
+		return true;
+	    }
+
+
+	    return false;
+	}
 
     } // end nexted class Pieces
 
@@ -463,13 +526,6 @@ public class Checkers extends JApplet implements ActionListener {
 	move.addActionListener(this);	
 	controls.add(move); // add to panel
 
-	/*
-	  JButton blackButton = new JButton("Move Black");
-	  blackButton.addActionListener(this);
-	  controls.add(blackButton);
-	*/
-
-
 	turnL = new JLabel("Red starts.");
 	controls.add(turnL);
 
@@ -481,7 +537,6 @@ public class Checkers extends JApplet implements ActionListener {
 	controls.add(reset);
 
 	getContentPane().add(controls, BorderLayout.SOUTH);
-
 
     }
 
@@ -495,8 +550,6 @@ public class Checkers extends JApplet implements ActionListener {
 
 	    System.out.println();
 	}
-
-
 
     }
 
@@ -574,9 +627,6 @@ public class Checkers extends JApplet implements ActionListener {
 	drawBoard();
 	initControls();
 	//		play();
-
-	//		System.out.println("Game Over!");
-	//		winner.setText("A player won!");
 
     }
 
