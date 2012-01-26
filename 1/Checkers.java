@@ -18,8 +18,6 @@ public class Checkers extends JApplet implements ActionListener {
 	int BLACK = -1;
 	int EMPTY = 0;
 
-	Piece EMPTYP = new Piece(EMPTY);
-
 	int turn = 1; // red starts
 
 	// Pale colors for the board
@@ -167,6 +165,19 @@ public class Checkers extends JApplet implements ActionListener {
 		// ---------------------------------------------
 
 
+		public void log(Piece from, Piece to) {
+			System.out.println("Moving " + from + " from " + from.getCoords() 
+					+ " to " + to.getCoords());
+		}
+
+		public void log(Piece from, Piece to, Piece ate) {
+			System.out.println("Moving " + from + " from " + from.getCoords() 
+					+ " to " + to.getCoords() + " and ate " + ate + " at " + ate.getCoords());
+
+		}
+
+
+
 		// Checks if a NW move is possible
 		public boolean hasNW1() {
 
@@ -215,7 +226,7 @@ public class Checkers extends JApplet implements ActionListener {
 			}
 
 			// 1. Try moving it.  Color is used for direction.		
-			System.out.println("--- Finding moves for " + p + " at " + p.getCoords());
+			System.out.println("--- Current = " + p + " at " + p.getCoords());
 
 
 			// Eliglble for a move NW?
@@ -224,10 +235,6 @@ public class Checkers extends JApplet implements ActionListener {
 				Piece nw1 =  grid[p.x + (1 * color)][p.y + (1 * color)];
 
 				if(EMPTY == nw1.color) {
-
-					System.out.println("--- Moving " + p + " from " + p.getCoords()
-								 + " to " + nw1.getCoords());
-
 
 					log(p, nw1);
 
@@ -248,7 +255,6 @@ public class Checkers extends JApplet implements ActionListener {
 					// nw1 is occupied. Can we jump?
 					if(EMPTY == nw2.color && this.color != nw1.color) {
 
-
 						log(p, nw2, nw1);
 
 						// move to nw2. Eat nw1.
@@ -260,7 +266,6 @@ public class Checkers extends JApplet implements ActionListener {
 						if(nw1.color == RED) numr--;
 						else numb--;
 
-						System.out.println("--- " + p + " at " + p.getCoords() + " ate " + nw1 + " at " + nw1.getCoords());
 						printBoard();
 
 						piecesLayer.repaint();
@@ -282,8 +287,7 @@ public class Checkers extends JApplet implements ActionListener {
 
 
 			// FIXME: A turn can be more than one move.
-			turn *= -1; // Naively alternate moves.
-			gameOver = true;
+//			gameOver = true;
 
 		} // end move()
 
@@ -415,7 +419,7 @@ public class Checkers extends JApplet implements ActionListener {
 		JPanel controls = new JPanel();
 		controls.setBackground(Color.gray);
 
-		JButton move = new JButton("Move Red");
+		JButton move = new JButton("Move");
 		move.addActionListener(this);	
 		controls.add(move); // add to panel
 
@@ -462,19 +466,24 @@ public class Checkers extends JApplet implements ActionListener {
 		String command = evt.getActionCommand();
 		System.out.println("Button: " + command);
 
-		if("Move Red".equals(command)) {
-			// Just playing around.  Move the red one at 2, 2 forward one space
-			grid[3][0] = grid[2][0];
-			grid[2][0] = new Piece(EMPTY, 2, 0);
-			// Check validity of move
-			piecesLayer.repaint();
-			System.out.println("--- Moved a red piece:");
-			printBoard();
+		Piece REDP = new Piece(RED);
+		Piece BLACKP = new Piece(BLACK);
+
+		if("Move".equals(command)) {
+			if(turn == RED) {
+				turnL.setText("Red's turn");
+				REDP.move();
+			}
+			else {
+				turnL.setText("Black's turn");
+				BLACKP.move();
+			} 
+			turn *= -1;
+
+//			piecesLayer.repaint();
+//			printBoard();
 
 
-
-		}
-		else if("Move Black".equals(command)) {
 
 		}
 		else if("Reset".equals(command)) {
@@ -512,7 +521,7 @@ public class Checkers extends JApplet implements ActionListener {
 		initGrid();
 		drawBoard();
 		initControls();
-		play();
+//		play();
 
 		System.out.println("Game Over!");
 		winner.setText("A player won!");
