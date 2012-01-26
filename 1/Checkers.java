@@ -29,7 +29,8 @@ public class Checkers extends JApplet implements ActionListener {
     Color red = Color.red;
     Color black = Color.black;
 
-    int numr, numb = 12; // initial number of pieces
+    int numr = 12;
+    int numb = 12; // initial number of pieces
 
     JLabel turnL; // Whose turn is it?
     JLabel winner;
@@ -128,6 +129,7 @@ public class Checkers extends JApplet implements ActionListener {
 	boolean isKing;
 	int x;
 	int y;
+	boolean seen; // used to select next avail piece
 
 	Piece() {
 	    // default Constructor.
@@ -144,6 +146,7 @@ public class Checkers extends JApplet implements ActionListener {
 	    this.x = x;
 	    this.y = y;
 	    isKing = false;
+	    seen = false;
 	}
 
 	public String toString(){
@@ -185,8 +188,8 @@ public class Checkers extends JApplet implements ActionListener {
 	// Checks if a NW move is possible
 	public boolean hasNW1() {
 
-	    if(this.x + (1 * color) < 8 && this.x + (1 * color) > 0 && 
-	       this.y + (1 * color) < 8 && this.y + (1 * color) > 0) {
+	    if(x + (1 * color) < 8 && x + (1 * color) >= 0 && 
+	       y + (1 * color) < 8 && y + (1 * color) >= 0) {
 		return true;
 	    }
 
@@ -197,8 +200,8 @@ public class Checkers extends JApplet implements ActionListener {
 	public boolean hasNW2() {
 
 	    // "this" is not necessary, instance method.
-	    if(x + (2 * color) < 8 && x + (2 * color) > 0 && 
-	       y + (2 * color) < 8 && y + (2 * color) > 0) {
+	    if(x + (2 * color) < 8 && x + (2 * color) >= 0 && 
+	       y + (2 * color) < 8 && y + (2 * color) >= 0) {
 		return true;
 	    }
 
@@ -208,8 +211,8 @@ public class Checkers extends JApplet implements ActionListener {
 	// Checks if a NE move is possible
 	public boolean hasNE1() {
 
-	    if(x + (1 * color) < 8 && x + (1 * color) > 0 &&
-	       y + (-1 * color) < 8 && y + (-1 * color) > 0) {
+	    if(x + (1 * color) < 8 && x + (1 * color) >= 0 &&
+	       y + (-1 * color) < 8 && y + (-1 * color) >= 0) {
 		return true;
 	    }
 	    return false;
@@ -218,28 +221,51 @@ public class Checkers extends JApplet implements ActionListener {
 	// Checks if a NE move is possible
 	public boolean hasNE2() {
 
-	    if(x + (2 * color) < 8 && x + (2 * color) > 0 &&
-	       y + (-2 * color) < 8 && y + (-2 * color) > 0) {
+	    if(x + (2 * color) < 8 && x + (2 * color) >= 0 &&
+	       y + (-2 * color) < 8 && y + (-2 * color) >= 0) {
 		return true;
 	    }
 	    return false;
 	}
 
-
+	int num = 12;
 	public void move() {
 
 	    Piece p = new Piece(EMPTY, 0, 0);
+
+	    if(RED == color) num = numr;
+	    else num = numb;
+
 	    // FIXME: Loop through grid back to x-1, not just to end
 	    // Start with naive implementation - search all
 
 	    // 0. Find any same colored piece
-	    while(this.color != p.color) {
-		p = grid[(int)(8.0 * Math.random())][(int)(8.0 * Math.random())];
+
+	    if(numSeen < num) {
+		while((this.color != p.color)) {
+		    p = grid[(int)(8.0 * Math.random())][(int)(8.0 * Math.random())];
+		} // end while
+	    
+		if(!grid[p.x][p.y].seen) p.tryAll();
+		else this.move();
+
 	    }
+	    else gameOver = true;
 
-	    // 1. Try moving it.  Color is used for direction.		
+	    // FIXME: A turn can be more than one move.
+       	    // FIXME: How do you know when there are no more moves available?
+	} // end move()
+
+
+
+	// try all moves for a piece
+	public void tryAll() {
+	    
+	    Piece p = this;
+	    grid[p.x][p.y].seen = true;
+	    numSeen++;
+	    
 	    System.out.println("--- Current = " + p + " at " + p.getCoords());
-
 
 	    // --- Eliglble for NW move?
         
@@ -336,19 +362,14 @@ public class Checkers extends JApplet implements ActionListener {
 	    // --- Eligible to move barkwards? (is King?)
 
 
-	    // FIXME: A turn can be more than one move.
-	
-	    // If it hasn't returned by now, look again.
-	    tries++;
-	    if(tries > 64) { gameOver = true; return;}
-	    this.move();
-	    // FIXME: How do you know when there are no more moves available?  Need to exit - not infinite loop!  Hacking it with 64 tries.
-
-	} // end move()
-
-
+	    if(numSeen <= num) this.move();
+	    else gameOver = true;
+	    
+	} // end tryAll
 
     } // end nexted class Pieces
+
+
 
 
 
@@ -388,6 +409,21 @@ public class Checkers extends JApplet implements ActionListener {
 	printBoard();
 
     }
+
+
+    int numSeen = 0;
+    public void unseeGrid() {
+
+	// Mark all points as un-visited.  Used to choose next piece to move.
+	for(int r = 0; r < 8; r++) {
+	    for(int c = 0; c < 8; c++) {
+		grid[r][c].seen = false;
+	    }
+	}
+
+	numSeen = 0;
+    } // end unseeGrid
+
 
     public void initGrid() {
 	// Clear out the grid
@@ -477,6 +513,9 @@ public class Checkers extends JApplet implements ActionListener {
 	    tries = 0;
 		    
 	    if(!gameOver) {
+
+		unseeGrid();
+
 		if(turn == RED) {
 		    REDP.move();
 		    turnL.setText("Black's turn.");
