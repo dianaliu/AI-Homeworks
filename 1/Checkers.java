@@ -204,8 +204,8 @@ public class Checkers extends JApplet implements ActionListener {
 	    // Checks if a NE move is possible
 	    public boolean hasNE1() {
 
-		if(x - (1 * color) < 8 && x - (1 * color) > 0 &&
-		   y - (1 * color) < 8 && y - (1 * color) > 0) {
+		if(x + (1 * color) < 8 && x + (1 * color) > 0 &&
+		   y + (-1 * color) < 8 && y + (-1 * color) > 0) {
 		    return true;
 		}
 		return false;
@@ -214,8 +214,8 @@ public class Checkers extends JApplet implements ActionListener {
 	    // Checks if a NE move is possible
 	    public boolean hasNE2() {
 
-		if(x - (2 * color) < 8 && x - (2 * color) > 0 &&
-		   y - (2 * color) < 8 && y - (2 * color) > 0) {
+		if(x + (2 * color) < 8 && x + (2 * color) > 0 &&
+		   y + (-2 * color) < 8 && y + (-2 * color) > 0) {
 		    return true;
 		}
 		return false;
@@ -241,9 +241,10 @@ public class Checkers extends JApplet implements ActionListener {
 
 
 			// --- Eliglble for NW move?
+        
 			if(p.hasNW1()) {
-
-				Piece nw1 =  grid[p.x + (1 * color)][p.y + (1 * color)];
+			    System.out.print("WEST : ");
+				Piece nw1 = grid[p.x + (1 * color)][p.y + (1 * color)];
 
 				if(EMPTY == nw1.color) {
 
@@ -292,8 +293,9 @@ public class Checkers extends JApplet implements ActionListener {
 
 			// --- Eligible for NE move?
 			if(p.hasNE1()) {
+			    System.out.print("EAST : ");
 
-			    Piece ne1 = grid[p.x - (1 * color)][p.y - (1 * color) ];
+			    Piece ne1 = grid[p.x + (1 * color)][p.y + (-1 * color)];
 			    if(EMPTY == ne1.color) {
 				
 				// move to ne1
@@ -307,7 +309,7 @@ public class Checkers extends JApplet implements ActionListener {
 			    }
 			    else if(p.hasNE2()) {
 
-				Piece ne2 = grid[p.x - (2 * color)][p.y - (2 * color) ];
+				Piece ne2 = grid[p.x + (2 * color)][p.y + (-2 * color) ];
 				// ne1 is occupied.  Can we jump?
 				if(EMPTY == ne2.color && this.color != ne1.color) {
 				    // Move to ne2. Eat ne1.
