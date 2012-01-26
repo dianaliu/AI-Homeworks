@@ -14,11 +14,13 @@ public class Checkers extends JApplet implements ActionListener {
 	// Array representing the board
 	Piece[][] grid = new Piece[8][8];
 
-
 	int RED = 1;
 	int BLACK = -1;
 	int EMPTY = 0;
 
+	Piece EMPTYP = new Piece(EMPTY);
+
+	int turn = 1; // red starts
 
 	// Pale colors for the board
 	Color pred = new Color(255, 128, 128);
@@ -30,7 +32,7 @@ public class Checkers extends JApplet implements ActionListener {
 
 	int numr, numb = 12; // initial number of pieces
 
-	JLabel turn; // Whose turn is it?
+	JLabel turnL; // Whose turn is it?
 	JLabel winner;
 	boolean gameOver = false;
 
@@ -95,12 +97,15 @@ public class Checkers extends JApplet implements ActionListener {
 
 					if(RED == grid[i][j].color) {
 						g.setColor(red);
+						g.fillOval(x, y, 30, 30);
+
 					}
 					else if(BLACK == grid[i][j].color) {
 						g.setColor(black);
+						g.fillOval(x, y, 30, 30);
+
 					}
 
-					g.fillOval(x, y, 30, 30);
 				}
 			}
 		} // end paint
@@ -154,29 +159,133 @@ public class Checkers extends JApplet implements ActionListener {
 		}
 
 
+		public String getCoords() {
+			return "(" + x + ", " + y + ")";
+		}
+
 
 		// ---------------------------------------------
 
-		public void move() {
-			// Need to loop through grid back to x-1, not just to end.
-			// Start with naive implementation - search to end.
-			for(int i = x; i < grid.length; i++) {
-				for(int j = y; j < grid.length; j++) {
 
-					if(this.color == grid[x][y].color && 
-							grid[x][y].canMove()) {
-						// Code to move the piece
-						// If it's still your turn, call move()
-						// else, return;
+		// Checks if a NW move is possible
+		public boolean hasNW1() {
+
+			if(this.x + (1 * color) < 8 && this.x + (1 * color) > 0 && 
+					this.y + (1 * color) < 8 && this.y + (1 * color) > 0) {
+				return true;
+			}
+
+			return false;
+		}
+
+		// Checks if a NW move is possible
+		public boolean hasNW2() {
+
+			// "this" is not necessary, instance method.
+			if(this.x + (2 * color) < 8 && this.x + (2 * color) > 0	&&						this.y + (2 * color) < 8 && this.y + (2 * color) > 0
+
+			  ) {
+				return true;
+			}
+
+			return false;
+		}
+
+
+		public void move() {
+
+			Piece p = null;
+			// FIXME: Loop through grid back to x-1, not just to end
+			// Start with naive implementation - search all
+
+			// 0. Find a matching piece
+			for(int i = 0; i < grid.length; i++) {
+				for(int j = 0; j < grid.length; j++) {
+
+					if(this.color == grid[i][j].color) {
+						p = grid[i][j];
+					}
+				}
+			} // end for loops
+
+			if(null == p) {
+				// Couldn't find any pieces of color.  Should've been detected earlier.
+				gameOver = true;
+				return;
+			}
+
+			// 1. Try moving it.  Color is used for direction.		
+			System.out.println("--- Finding moves for " + p + " at " + p.getCoords());
+
+
+			// Eliglble for a move NW?
+			if(p.hasNW1()) {
+
+				Piece nw1 =  grid[p.x + (1 * color)][p.y + (1 * color)];
+
+				if(EMPTY == nw1.color) {
+
+					System.out.println("--- Moving " + p + " from " + p.getCoords()
+								 + " to " + nw1.getCoords());
+
+
+					log(p, nw1);
+
+					// move to nw1
+					grid[nw1.x][nw1.y] = p;
+					grid[p.x][p.y] = new Piece(EMPTY, p.x, p.y);
+				
+					printBoard();
+
+					piecesLayer.repaint();
+					return;
+
+				}
+				else if(p.hasNW2()) {
+
+					Piece nw2 = grid[p.x + (2 * color)][p.y + (2 * color)];
+
+					// nw1 is occupied. Can we jump?
+					if(EMPTY == nw2.color && this.color != nw1.color) {
+
+
+						log(p, nw2, nw1);
+
+						// move to nw2. Eat nw1.
+						grid[nw2.x][nw2.y] = p;	
+						grid[nw1.x][nw1.y] = new Piece(EMPTY, nw1.x ,nw1.y);
+						grid[p.x][p.y] = new Piece(EMPTY, p.x, p.y);
+							
+
+						if(nw1.color == RED) numr--;
+						else numb--;
+
+						System.out.println("--- " + p + " at " + p.getCoords() + " ate " + nw1 + " at " + nw1.getCoords());
+						printBoard();
+
+						piecesLayer.repaint();
+						return;
+
+
 					}
 
 
 				}
-			} // end for loops
+
+
+
+
+			} // end NW check
+
+
+
+
+
+			// FIXME: A turn can be more than one move.
+			turn *= -1; // Naively alternate moves.
+			gameOver = true;
 
 		} // end move()
-
-
 
 		// Determines if a piece can move
 		public boolean canMove() {
@@ -196,10 +305,12 @@ public class Checkers extends JApplet implements ActionListener {
 			// Check left diagonal
 			else if(true) {
 
+				piecesLayer.repaint();
 
 			}
 			// Check right diagonal
 			else if(true) {
+				piecesLayer.repaint();
 
 			}	
 
@@ -208,6 +319,8 @@ public class Checkers extends JApplet implements ActionListener {
 
 				// Kings can move backwards as well
 				// make the move, return true
+				piecesLayer.repaint();
+
 				gameOver = true;
 				return true;
 
@@ -272,7 +385,7 @@ public class Checkers extends JApplet implements ActionListener {
 		// Clear out the grid
 		for(int r = 0; r < 8; r++) {
 			for(int c = 0; c < 8; c++) {
-				grid[r][c] = new Piece(EMPTY);
+				grid[r][c] = new Piece(EMPTY, r, c);
 			}
 		}
 
@@ -313,8 +426,8 @@ public class Checkers extends JApplet implements ActionListener {
 		 */
 
 
-		turn = new JLabel("Red starts.");
-		controls.add(turn);
+		turnL = new JLabel("Red starts.");
+		controls.add(turnL);
 
 		winner = new JLabel("No winner yet.");	
 		controls.add(winner);	
@@ -352,7 +465,7 @@ public class Checkers extends JApplet implements ActionListener {
 		if("Move Red".equals(command)) {
 			// Just playing around.  Move the red one at 2, 2 forward one space
 			grid[3][0] = grid[2][0];
-			grid[2][0] = new Piece(EMPTY);
+			grid[2][0] = new Piece(EMPTY, 2, 0);
 			// Check validity of move
 			piecesLayer.repaint();
 			System.out.println("--- Moved a red piece:");
@@ -383,14 +496,15 @@ public class Checkers extends JApplet implements ActionListener {
 
 	public void play() {
 
+		Piece REDP = new Piece(RED);
+		Piece BLACKP = new Piece(BLACK);
+
+
 		while(!gameOver) {
-			grid[0][0].move();			
+			REDP.move();
+			turn *= -1;
+			BLACKP.move();
 		}
-
-		System.out.println("Game Over!");
-		winner.setText("A player won!");
-
-
 	}
 
 	public void init() {
@@ -399,6 +513,9 @@ public class Checkers extends JApplet implements ActionListener {
 		drawBoard();
 		initControls();
 		play();
+
+		System.out.println("Game Over!");
+		winner.setText("A player won!");
 
 	}
 
