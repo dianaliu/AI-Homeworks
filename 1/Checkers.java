@@ -12,7 +12,7 @@ public class Checkers extends JApplet implements ActionListener {
 
 
     // Array representing the board
-    Piece[][] grid = new Piece[8][8];
+    public static Piece[][] grid = new Piece[8][8];
 
     int RED = 1;
     int BLACK = -1;
@@ -257,17 +257,19 @@ public class Checkers extends JApplet implements ActionListener {
         int num = 12;
         // Used to alternate turns.  Only valid colors matter. 
         public void move() {
+  
+            // Methodically search for a piece to move.  
+            // Of course, it always plays the same game. 
+            for(int i = 0; i < 8; i++) {
+                for(int j = 0; j < 8; j++) {
 
-            Piece p = new Piece(EMPTY, 0, 0);
-
-            if(RED == color) num = numr;
-            else num = numb;
-
-            // Methodically search for a piece to move.
-            for(int i = 0; i < grid.length; i++) {
-                for(int j = 0; j < grid.length; j++) {
+                    System.out.println("this.color = " + this.color);
+                    System.out.println("grid[" + i + "][" + j + "].color = " + grid[i][j].color);
 
                     if(this.color == grid[i][j].color) {
+                        System.out.println("--- MATCH ---");
+                     System.out.println("this.color = " + this.color);
+                    System.out.println("grid[" + i + "][" + j + "].color = " + grid[i][j].color);
 
                             boolean hasMove = grid[i][j].tryAll();
                             if(hasMove) return;
@@ -277,21 +279,10 @@ public class Checkers extends JApplet implements ActionListener {
                 }
             }
 
-/*
-            // Find any same colored piece
-            if(numSeen < num) {
-                while((this.color != p.color)) {
-                    p = grid[(int)(8.0 * Math.random())][(int)(8.0 * Math.random())];
-                } // end while
-
-                if(!grid[p.x][p.y].seen) p.tryAll();
-                else this.move();
-
-            }
-            */
- //           else gameOver = true;
-
-            // FIXME: A turn can be more than one move.
+            System.out.println("--- No moves found.  Turn over or Game over?");
+            printBoard();
+        
+            // FIXME: A turn can be more than one move.  Call tryAll when returning true.
             // FIXME: How do you know when there are no more moves available?
         } // end move()
 
@@ -300,12 +291,14 @@ public class Checkers extends JApplet implements ActionListener {
         // try all moves for a piece
         public boolean tryAll() {
 
+            System.out.println("Examining " + this + " at " + this.getCoords());
+
             // FIXME: Pieces move up to the middle line, then stop.
             // No jumping!
 
             Piece p = this;
-            grid[p.x][p.y].seen = true;
-            numSeen++;
+ //           grid[p.x][p.y].seen = true;
+ //           numSeen++;
 
 
             // --- Eliglble for NW move?
@@ -318,10 +311,11 @@ public class Checkers extends JApplet implements ActionListener {
 
                 if(EMPTY == nw2.color && EMPTY != nw1.color && p.color != nw1.color) {
 
+                    System.out.print("NW: ");
                     log(p, nw2, nw1);
 
                     // Move to nw2. Eat nw1.
-                    grid[nw2.x][nw2.y] = p;	
+                    grid[nw2.x][nw2.y] = new Piece(p.color, nw2.x, nw2.y);	
                     grid[nw1.x][nw1.y] = new Piece(EMPTY, nw1.x ,nw1.y);
                     grid[p.x][p.y] = new Piece(EMPTY, p.x, p.y);
 
@@ -349,9 +343,12 @@ public class Checkers extends JApplet implements ActionListener {
 
                 if(EMPTY == nw1.color) {
 
+                    System.out.print("NW: ");
                     log(p, nw1);
 
-                    grid[nw1.x][nw1.y] = p;
+
+                    // AHA I messed up the coordinates!
+                    grid[nw1.x][nw1.y] = new Piece(p.color, nw1.x, nw1.y);
                     grid[p.x][p.y] = new Piece(EMPTY, p.x, p.y);
 
 
@@ -372,8 +369,9 @@ public class Checkers extends JApplet implements ActionListener {
                 if(EMPTY == ne1.color) {
 
                     // move to ne1
+                    System.out.print("NE: ");
                     log(p, ne1);
-                    grid[ne1.x][ne1.y] = p;
+                    grid[ne1.x][ne1.y] = new Piece(p.color, ne1.x, ne1.y);
                     grid[p.x][p.y] = new Piece(EMPTY, p.x, p.y);
 
                     if(ne1.madeKing()) grid[ne1.x][ne1.y].isKing = true;
@@ -388,8 +386,9 @@ public class Checkers extends JApplet implements ActionListener {
                     // ne1 is occupied.  Can we jump?
                     if(EMPTY == ne2.color && this.color != ne1.color) {
                         // Move to ne2. Eat ne1.
+                        System.out.print("NE: ");
                         log(p, ne2, ne1);
-                        grid[ne2.x][ne2.y] = p;
+                        grid[ne2.x][ne2.y] = new Piece(p.color, ne2.x, ne2.y);
                         grid[ne1.x][ne1.y] = new Piece(EMPTY, ne1.x , ne1.y);
                         grid[p.x][p.y] = new Piece(EMPTY, p.x, p.y);
 
