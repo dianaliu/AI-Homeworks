@@ -341,7 +341,7 @@ public class Checkers extends JApplet implements ActionListener {
                     if(0 == numr || 0 ==numb) gameOver = true;
 
 
-                    if(grid[nw2.x][nw2.y].madeKing()) {
+                    if(grid[nw2.x][nw2.y].madeKing() || p.isKing) {
                         grid[nw2.x][nw2.y].isKing = true;
                     }
 
@@ -373,7 +373,9 @@ public class Checkers extends JApplet implements ActionListener {
                     if(0 == numr || 0 ==numb) gameOver = true;
 
 
-                    if(grid[ne2.x][ne2.y].madeKing()) grid[ne2.x][ne2.y].isKing = true;
+                    if(grid[ne2.x][ne2.y].madeKing() || p.isKing) {
+                        grid[ne2.x][ne2.y].isKing = true;
+                        }
 
                     printBoard();
                     piecesLayer.repaint();
@@ -405,7 +407,7 @@ public class Checkers extends JApplet implements ActionListener {
 
 
                         // Check for king-ship
-                        if(grid[sw2.x][sw2.y].madeKing()) {
+                        if(grid[sw2.x][sw2.y].madeKing() || p.isKing) {
                             grid[sw2.x][sw2.y].isKing = true;
                         }
 
@@ -444,7 +446,7 @@ public class Checkers extends JApplet implements ActionListener {
 
 
                     // Check for king-ship
-                    if(grid[se2.x][se2.y].madeKing()) {
+                    if(grid[se2.x][se2.y].madeKing()|| p.isKing) {
                         grid[se2.x][se2.y].isKing = true;
                     }
 
@@ -476,7 +478,9 @@ public class Checkers extends JApplet implements ActionListener {
                     grid[nw1.x][nw1.y] = new Piece(p.color, nw1.x, nw1.y);
                     grid[p.x][p.y] = new Piece(EMPTY, p.x, p.y);
 
-                    if(grid[nw1.x][nw1.y].madeKing()) grid[nw1.x][nw1.y].isKing = true;
+                    if(grid[nw1.x][nw1.y].madeKing() || p.isKing) {
+                        grid[nw1.x][nw1.y].isKing = true;
+                    }
 
                     printBoard();
                     piecesLayer.repaint();
@@ -498,7 +502,9 @@ public class Checkers extends JApplet implements ActionListener {
                     grid[ne1.x][ne1.y] = new Piece(p.color, ne1.x, ne1.y);
                     grid[p.x][p.y] = new Piece(EMPTY, p.x, p.y);
 
-                    if(grid[ne1.x][ne1.y].madeKing()) grid[ne1.x][ne1.y].isKing = true;
+                    if(grid[ne1.x][ne1.y].madeKing() || p.isKing) {
+                        grid[ne1.x][ne1.y].isKing = true;
+                    }
 
                     printBoard();
                     piecesLayer.repaint();
@@ -520,7 +526,7 @@ public class Checkers extends JApplet implements ActionListener {
                     grid[se1.x][se1.y] = new Piece(p.color, se1.x, se1.y);
                     grid[p.x][p.y] = new Piece(EMPTY, p.x, p.y);
 
-                    if(grid[se1.x][se1.y].madeKing()) {
+                    if(grid[se1.x][se1.y].madeKing() || p.isKing) {
                         grid[se1.x][se1.y].isKing = true;
                     }
 
@@ -544,7 +550,7 @@ public class Checkers extends JApplet implements ActionListener {
                     grid[sw1.x][sw1.y] = new Piece(p.color, sw1.x, sw1.y);
                     grid[p.x][p.y] = new Piece(EMPTY, p.x, p.y);
 
-                    if(grid[sw1.x][sw1.y].madeKing()) {
+                    if(grid[sw1.x][sw1.y].madeKing() || p.isKing) {
                         grid[sw1.x][sw1.y].isKing = true;
                     }
 
