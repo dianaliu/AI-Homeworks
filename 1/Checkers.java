@@ -313,7 +313,20 @@ public class Checkers extends JApplet implements ActionListener {
 
             System.out.println("Examining " + this + " at " + this.getCoords());
 
+            boolean canJump = this.tryJumps();
+            if(canJump)
+                return true;
+            else {
+                boolean canStep = this.trySteps();
+                return canStep;
+            }
+      
+      } // end tryAll
+
+        public boolean tryJumps() {
+
             Piece p = this;
+
 
             // -------------------------------------------------------
             // ------------------- Try all jumps --------------------- 
@@ -348,7 +361,8 @@ public class Checkers extends JApplet implements ActionListener {
                     printBoard();
                     piecesLayer.repaint();
 
-                    // Call p.tryAll()? To see if there is 1+ move for this piece?
+                    // Call p.tryAll()? To see if there is 1+ move for this piece
+                    // Actually - you'd only try all jumps!
                     return true;
                 }
 
@@ -375,7 +389,7 @@ public class Checkers extends JApplet implements ActionListener {
 
                     if(grid[ne2.x][ne2.y].madeKing() || p.isKing) {
                         grid[ne2.x][ne2.y].isKing = true;
-                        }
+                    }
 
                     printBoard();
                     piecesLayer.repaint();
@@ -390,35 +404,35 @@ public class Checkers extends JApplet implements ActionListener {
                 Piece sw1 = grid[x + (1 * -color)][y + (1 * -color)];
                 Piece sw2 = grid[x + (2 * -color)][y + (2 * -color)];
 
-                        if(EMPTY == sw2.color && EMPTY != sw1.color && p.color != sw1.color) {
-                        System.out.print("SW: ");
-                        log(p, sw2, sw1);
+                if(EMPTY == sw2.color && EMPTY != sw1.color && p.color != sw1.color) {
+                    System.out.print("SW: ");
+                    log(p, sw2, sw1);
 
-                        // Move to sw2.  Eat sw1.
-                        grid[sw2.x][sw2.y] = new Piece(p.color, sw2.x, sw2.y);
-                        grid[sw1.x][sw1.y] = new Piece(EMPTY, sw1.x, sw1.y);
-                        grid[p.x][p.y] = new Piece(EMPTY, p.x, p.y);
-
-
-                        // Decrement num pieces
-                        if(sw1.color == RED) numr--;
-                        else numb--;
-                        if(0 == numr || 0 ==numb) gameOver = true;
+                    // Move to sw2.  Eat sw1.
+                    grid[sw2.x][sw2.y] = new Piece(p.color, sw2.x, sw2.y);
+                    grid[sw1.x][sw1.y] = new Piece(EMPTY, sw1.x, sw1.y);
+                    grid[p.x][p.y] = new Piece(EMPTY, p.x, p.y);
 
 
-                        // Check for king-ship
-                        if(grid[sw2.x][sw2.y].madeKing() || p.isKing) {
-                            grid[sw2.x][sw2.y].isKing = true;
-                        }
-
-                        // Re-draw
-                        printBoard();
-                        piecesLayer.repaint();
+                    // Decrement num pieces
+                    if(sw1.color == RED) numr--;
+                    else numb--;
+                    if(0 == numr || 0 ==numb) gameOver = true;
 
 
-                        return true;
+                    // Check for king-ship
+                    if(grid[sw2.x][sw2.y].madeKing() || p.isKing) {
+                        grid[sw2.x][sw2.y].isKing = true;
+                    }
 
-                        }
+                    // Re-draw
+                    printBoard();
+                    piecesLayer.repaint();
+
+
+                    return true;
+
+                }
 
 
             } // end SW jump
@@ -429,7 +443,7 @@ public class Checkers extends JApplet implements ActionListener {
                 Piece se2 = grid[x + (2 * -color)][y + (-2 * -color)];
 
                 if(EMPTY == se2.color 
-                    && EMPTY != se1.color && p.color != se1.color) {
+                        && EMPTY != se1.color && p.color != se1.color) {
                     System.out.print("SW: ");
                     log(p, se2, se1);
 
@@ -455,11 +469,25 @@ public class Checkers extends JApplet implements ActionListener {
                     piecesLayer.repaint();
 
 
+                    // If it can jump, try jumping again!
+                    // grid[se2.x][se2.y].tryJumps();
                     return true;
 
                 }
 
             } // end SE jump
+
+
+
+        // No jumps possible.
+        return false;
+
+        } // end tryJumps
+
+
+        public boolean trySteps() {
+
+         Piece p = this;
 
             // -------------------------------------------------------
             // ------------------- Try all steps --------------------- 
@@ -535,12 +563,12 @@ public class Checkers extends JApplet implements ActionListener {
                     return true;			
 
                 }
-            
+
             } // end SE step
 
             else if(p.isKing && p.hasSW1()) {
 
-                 Piece sw1 = grid[x + (1 * -color)][y + (1 * -color)];
+                Piece sw1 = grid[x + (1 * -color)][y + (1 * -color)];
 
                 if(EMPTY == sw1.color) {
 
@@ -564,11 +592,10 @@ public class Checkers extends JApplet implements ActionListener {
             } // end SW step
 
 
+        // No steps possible.
+        return false;
 
-            // Couldn't find a move for this piece
-            return false;
-        } // end tryAll
-
+        } // end trySteps
 
 
         public boolean madeKing() {
