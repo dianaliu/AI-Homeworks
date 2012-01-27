@@ -254,34 +254,29 @@ public class Checkers extends JApplet implements ActionListener {
             return false;
         }
 
-        int num = 12;
+
         // Used to alternate turns.  Only valid colors matter. 
         public void move() {
-  
+
             // Methodically search for a piece to move.  
             // Of course, it always plays the same game. 
             for(int i = 0; i < 8; i++) {
                 for(int j = 0; j < 8; j++) {
 
-                    System.out.println("this.color = " + this.color);
-                    System.out.println("grid[" + i + "][" + j + "].color = " + grid[i][j].color);
-
                     if(this.color == grid[i][j].color) {
-                        System.out.println("--- MATCH ---");
-                     System.out.println("this.color = " + this.color);
-                    System.out.println("grid[" + i + "][" + j + "].color = " + grid[i][j].color);
 
-                            boolean hasMove = grid[i][j].tryAll();
-                            if(hasMove) return;
+                        boolean hasMove = grid[i][j].tryAll();
+                        if(hasMove) return;
 
                     } // end if
 
                 }
             }
 
-            System.out.println("--- No moves found.  Turn over or Game over?");
+            System.out.println("--- No moves found.  Turn over?");
             printBoard();
-        
+            return;
+
             // FIXME: A turn can be more than one move.  Call tryAll when returning true.
             // FIXME: How do you know when there are no more moves available?
         } // end move()
@@ -293,101 +288,82 @@ public class Checkers extends JApplet implements ActionListener {
 
             System.out.println("Examining " + this + " at " + this.getCoords());
 
-            // FIXME: Pieces move up to the middle line, then stop.
-            // No jumping!
-
             Piece p = this;
- //           grid[p.x][p.y].seen = true;
- //           numSeen++;
-
 
             // --- Eliglble for NW move?
 
-            if(p.hasNW1() && p.hasNW2()) {
-                // NW jump
-       
-                Piece nw1 = grid[p.x + (1 * color)][p.y + (1 * color)];
-                Piece nw2 = grid[p.x + (2 * color)][p.y + (2 * color)];
+            if(p.hasNW1()) {
 
-                if(EMPTY == nw2.color && EMPTY != nw1.color && p.color != nw1.color) {
+                if(p.hasNW2()) {
 
-                    System.out.print("NW: ");
-                    log(p, nw2, nw1);
+                    Piece nw1 = grid[p.x + (1 * color)][p.y + (1 * color)];
+                    Piece nw2 = grid[p.x + (2 * color)][p.y + (2 * color)];
 
-                    // Move to nw2. Eat nw1.
-                    grid[nw2.x][nw2.y] = new Piece(p.color, nw2.x, nw2.y);	
-                    grid[nw1.x][nw1.y] = new Piece(EMPTY, nw1.x ,nw1.y);
-                    grid[p.x][p.y] = new Piece(EMPTY, p.x, p.y);
+                    if(EMPTY == nw2.color && EMPTY != nw1.color 
+                            && p.color != nw1.color) {
 
+                        System.out.print("NW: ");
+                        log(p, nw2, nw1);
 
-                    if(nw1.color == RED) numr--;
-                    else numb--;
-
-                    if(0 == numr || 0 ==numb) gameOver = true;
+                        // Move to nw2. Eat nw1.
+                        grid[nw2.x][nw2.y] = new Piece(p.color, nw2.x, nw2.y);  
+                        grid[nw1.x][nw1.y] = new Piece(EMPTY, nw1.x ,nw1.y);
+                        grid[p.x][p.y] = new Piece(EMPTY, p.x, p.y);
 
 
-                    if(nw2.madeKing()) grid[nw2.x][nw2.y].isKing = true;
-
-                    printBoard();
-                    piecesLayer.repaint();
-
-                    // Call p.tryAll()? To see if there is 1+ move for this piece?
-                    return true;
-
-                } 
-
-            } // end NW jump
-            else if(p.hasNW1() && !p.hasNW2()) {
-                // NW step
-                Piece nw1 = grid[p.x + (1 * color)][p.y + (1 * color)];
-
-                if(EMPTY == nw1.color) {
-
-                    System.out.print("NW: ");
-                    log(p, nw1);
+                        if(nw1.color == RED) numr--;
+                        else numb--;
+                        if(0 == numr || 0 ==numb) gameOver = true;
 
 
-                    // AHA I messed up the coordinates!
-                    grid[nw1.x][nw1.y] = new Piece(p.color, nw1.x, nw1.y);
-                    grid[p.x][p.y] = new Piece(EMPTY, p.x, p.y);
+                        if(nw2.madeKing()) grid[nw2.x][nw2.y].isKing = true;
 
+                        printBoard();
+                        piecesLayer.repaint();
 
-                    if(nw1.madeKing()) grid[nw1.x][nw1.y].isKing = true;
+                        // Call p.tryAll()? To see if there is 1+ move for this piece?
+                        return true;
+                        }
 
-                    printBoard();
-                    piecesLayer.repaint();
-                    return true;
+                    } // end if NW jump
 
-                }
+                    System.out.println("--- FAIL: NW jump");
 
-            } // end NW step
-        
-            // --- Eligible for NE move?
-            else if(p.hasNE1()) {
+                    // NW step
+                    Piece nw1 = grid[p.x + (1 * color)][p.y + (1 * color)];
 
-                Piece ne1 = grid[p.x + (1 * color)][p.y + (-1 * color)];
-                if(EMPTY == ne1.color) {
+                    if(EMPTY == nw1.color) {
 
-                    // move to ne1
-                    System.out.print("NE: ");
-                    log(p, ne1);
-                    grid[ne1.x][ne1.y] = new Piece(p.color, ne1.x, ne1.y);
-                    grid[p.x][p.y] = new Piece(EMPTY, p.x, p.y);
+                        System.out.print("NW: ");
+                        log(p, nw1);
 
-                    if(ne1.madeKing()) grid[ne1.x][ne1.y].isKing = true;
+                        grid[nw1.x][nw1.y] = new Piece(p.color, nw1.x, nw1.y);
+                        grid[p.x][p.y] = new Piece(EMPTY, p.x, p.y);
 
-                    printBoard();
-                    piecesLayer.repaint();
-                    return true;			    
-                }
-                else if(p.hasNE2()) {
+                        if(nw1.madeKing()) grid[nw1.x][nw1.y].isKing = true;
 
-                    Piece ne2 = grid[p.x + (2 * color)][p.y + (-2 * color) ];
-                    // ne1 is occupied.  Can we jump?
-                    if(EMPTY == ne2.color && this.color != ne1.color) {
-                        // Move to ne2. Eat ne1.
+                        printBoard();
+                        piecesLayer.repaint();
+                        return true;
+
+                    }
+
+                    System.out.println("--- FAIL: NW step");
+
+                } // end NW check
+
+        else if(p.hasNE1()) {
+
+            if(p.hasNE2()) {
+
+                    Piece ne1 = grid[p.x + (1 * color)][p.y + (-1 * color)];
+                    Piece ne2 = grid[p.x + (2 * color)][p.y + (-2 * color)];
+
+                    if(EMPTY == ne2.color && EMPTY != ne1.color && p.color != ne1.color) {
                         System.out.print("NE: ");
                         log(p, ne2, ne1);
+
+                        // Move to ne2.  Eat ne1.
                         grid[ne2.x][ne2.y] = new Piece(p.color, ne2.x, ne2.y);
                         grid[ne1.x][ne1.y] = new Piece(EMPTY, ne1.x , ne1.y);
                         grid[p.x][p.y] = new Piece(EMPTY, p.x, p.y);
@@ -402,239 +378,256 @@ public class Checkers extends JApplet implements ActionListener {
                         printBoard();
                         piecesLayer.repaint();
                         return true;
+
                     }
+            } // end NE jump
+
+            System.out.println("--- FAIL: NE jump");
+
+
+             Piece ne1 = grid[p.x + (1 * color)][p.y + (-1 * color)];
+
+             if(EMPTY == ne1.color) {
+
+                 System.out.print("NE: ");
+                 log(p, ne1);
+
+                 grid[ne1.x][ne1.y] = new Piece(p.color, ne1.x, ne1.y);
+                 grid[p.x][p.y] = new Piece(EMPTY, p.x, p.y);
+
+                 if(ne1.madeKing()) grid[ne1.x][ne1.y].isKing = true;
+
+                 printBoard();
+                 piecesLayer.repaint();
+                 return true;			
+
+             }
+
+             System.out.println("--- FAIL: NE step");
+
+        } // end NE check
+
+
+        // --- Eligible to move backwards?
+                else if(p.isKing && p.hasSE1()) {
 
                 }
 
-            } // end NE check
+                else if(p.isKing && p.hasSW1()) {
+
+                }
 
 
-            // --- Eligible to move backwards?
-            else if(p.isKing && p.hasSE1()) {
 
+                // Couldn't find a move for this piece
+                return false;
+            } // end tryAll
+
+
+
+            public boolean madeKing() {
+
+                if(RED == this.color && 7 == this.x) {
+                    return true;
+                }
+                else if(BLACK == this.color && 0 == this.x) {
+                    return true;
+                }
+
+                return false;
             }
 
-            else if(p.isKing && p.hasSW1()) {
+        } // end nexted class Pieces
 
+
+        // --------------------------------------------------------------
+        // --------------------------------------------------------------
+        // --------------------------------------------------------------
+
+        public void drawBoard() {
+
+            // Use a Layered Pane to hold the board
+            lp = new JLayeredPane();
+            lp.setPreferredSize(new Dimension(504, 504)); 
+            // Layout messes with layering, must use absolute positions
+            //		lp.setLayout(new BorderLayout()); 
+            getContentPane().add(lp, BorderLayout.CENTER);
+
+            // Draw the blank board 
+            display = new Display();
+            display.setBounds(0,0,504,504);
+            lp.add(display, new Integer(0), 0);
+
+            //		lp.add(display, BorderLayout.CENTER, JLayeredPane.DEFAULT_LAYER);
+            //		getContentPane().add(display, BorderLayout.CENTER);
+
+
+            // Draw the pieces
+            piecesLayer = new PiecesLayer();
+            piecesLayer.setBounds(0,0,504,504);
+            lp.add(piecesLayer, new Integer(1), 0);
+
+            //		lp.add(piecesLayer, BorderLayout.CENTER, new Integer(20));
+            //		getContentPane().add(piecesLayer, BorderLayout.CENTER);
+
+            System.out.println("--- Current Board:");
+            printBoard();
+
+        }
+
+
+        int numSeen = 0;
+        public void unseeGrid() {
+
+            // Mark all points as un-visited.  Used to choose next piece to move.
+            for(int r = 0; r < 8; r++) {
+                for(int c = 0; c < 8; c++) {
+                    grid[r][c].seen = false;
+                }
+            }
+
+            numSeen = 0;
+        } // end unseeGrid
+
+
+        public void initGrid() {
+            // Clear out the grid
+            for(int r = 0; r < 8; r++) {
+                for(int c = 0; c < 8; c++) {
+                    grid[r][c] = new Piece(EMPTY, r, c);
+                }
+            }
+
+            // Red pieces on top three rows
+            for(int r = 0; r < 3; r++) {
+                for(int c = 0; c < 8; c++) {
+                    if ( (r % 2) == (c % 2) )
+                        grid[r][c] = new Piece(RED, r, c);
+                }
+            }
+
+            // Black pieces on bottom three rows
+            for(int r = 5; r < 8; r++) {
+                for(int c = 0; c < 8; c++) {
+                    if ( (r % 2) == (c % 2) )
+                        grid[r][c] = new Piece(BLACK, r, c);
+
+                }
             }
 
 
-//            if(numSeen <= num) this.move();
-//            else gameOver = true;
-
-
-
-        // Couldn't find a move for this piece
-        return false;
-    } // end tryAll
-
-
-
-    public boolean madeKing() {
-
-        if(RED == this.color && 7 == this.x) {
-            return true;
-        }
-        else if(BLACK == this.color && 0 == this.x) {
-            return true;
         }
 
-        return false;
-    }
 
-} // end nexted class Pieces
+        public void initControls() {
+            // Draw the controls
+            controls = new JPanel();
+            controls.setBackground(Color.gray);
 
+            move = new JButton("Move");
+            move.addActionListener(this);	
+            controls.add(move); // add to panel
 
-// --------------------------------------------------------------
-// --------------------------------------------------------------
-// --------------------------------------------------------------
+            turnL = new JLabel("Red starts.");
+            controls.add(turnL);
 
-public void drawBoard() {
+            winner = new JLabel("No winner yet.");	
+            controls.add(winner);	
 
-    // Use a Layered Pane to hold the board
-    lp = new JLayeredPane();
-    lp.setPreferredSize(new Dimension(504, 504)); 
-    // Layout messes with layering, must use absolute positions
-    //		lp.setLayout(new BorderLayout()); 
-    getContentPane().add(lp, BorderLayout.CENTER);
+            JButton reset = new JButton("Reset");
+            reset.addActionListener(this);
+            controls.add(reset);
 
-    // Draw the blank board 
-    display = new Display();
-    display.setBounds(0,0,504,504);
-    lp.add(display, new Integer(0), 0);
-
-    //		lp.add(display, BorderLayout.CENTER, JLayeredPane.DEFAULT_LAYER);
-    //		getContentPane().add(display, BorderLayout.CENTER);
-
-
-    // Draw the pieces
-    piecesLayer = new PiecesLayer();
-    piecesLayer.setBounds(0,0,504,504);
-    lp.add(piecesLayer, new Integer(1), 0);
-
-    //		lp.add(piecesLayer, BorderLayout.CENTER, new Integer(20));
-    //		getContentPane().add(piecesLayer, BorderLayout.CENTER);
-
-    System.out.println("--- Current Board:");
-    printBoard();
-
-}
-
-
-int numSeen = 0;
-public void unseeGrid() {
-
-    // Mark all points as un-visited.  Used to choose next piece to move.
-    for(int r = 0; r < 8; r++) {
-        for(int c = 0; c < 8; c++) {
-            grid[r][c].seen = false;
-        }
-    }
-
-    numSeen = 0;
-} // end unseeGrid
-
-
-public void initGrid() {
-    // Clear out the grid
-    for(int r = 0; r < 8; r++) {
-        for(int c = 0; c < 8; c++) {
-            grid[r][c] = new Piece(EMPTY, r, c);
-        }
-    }
-
-    // Red pieces on top three rows
-    for(int r = 0; r < 3; r++) {
-        for(int c = 0; c < 8; c++) {
-            if ( (r % 2) == (c % 2) )
-                grid[r][c] = new Piece(RED, r, c);
-        }
-    }
-
-    // Black pieces on bottom three rows
-    for(int r = 5; r < 8; r++) {
-        for(int c = 0; c < 8; c++) {
-            if ( (r % 2) == (c % 2) )
-                grid[r][c] = new Piece(BLACK, r, c);
+            getContentPane().add(controls, BorderLayout.SOUTH);
 
         }
-    }
 
 
-}
+        public void printBoard() {
+            // Print board to console
+            for(int i = 0; i<grid.length; i++) {
+                for(int j = 0; j < 8; j++) {
+                    System.out.print(grid[i][j] + "-");
+                }
 
+                System.out.println();
+            }
 
-public void initControls() {
-    // Draw the controls
-    controls = new JPanel();
-    controls.setBackground(Color.gray);
-
-    move = new JButton("Move");
-    move.addActionListener(this);	
-    controls.add(move); // add to panel
-
-    turnL = new JLabel("Red starts.");
-    controls.add(turnL);
-
-    winner = new JLabel("No winner yet.");	
-    controls.add(winner);	
-
-    JButton reset = new JButton("Reset");
-    reset.addActionListener(this);
-    controls.add(reset);
-
-    getContentPane().add(controls, BorderLayout.SOUTH);
-
-}
-
-
-public void printBoard() {
-    // Print board to console
-    for(int i = 0; i<grid.length; i++) {
-        for(int j = 0; j < 8; j++) {
-            System.out.print(grid[i][j] + "-");
         }
 
-        System.out.println();
-    }
 
-}
+        public void actionPerformed(ActionEvent evt) { 
+            // Event listenrs for buttons
+            String command = evt.getActionCommand();
+
+            Piece REDP = new Piece(RED);
+            Piece BLACKP = new Piece(BLACK);
+
+            if("Move".equals(command)) {
+
+                if(!gameOver) {
+
+                    //           unseeGrid();
+
+                    if(turn == RED) {
+                        REDP.move();
+                        turnL.setText("Black's turn.");
+                    }
+                    else {
+                        BLACKP.move();
+                        turnL.setText("Red's turn.");
+                    } 
+
+                }
+                else {
+                    controls.remove(move);
+                    System.out.println("GAME OVER");
+                    if(RED == turn) winner.setText("RED WON!");
+                    else winner.setText("BLACK WON!");
+                    return;
+                }
 
 
-public void actionPerformed(ActionEvent evt) { 
-    // Event listenrs for buttons
-    String command = evt.getActionCommand();
+            }
+            else if("Reset".equals(command)) {
 
-    Piece REDP = new Piece(RED);
-    Piece BLACKP = new Piece(BLACK);
+                initGrid();
+                piecesLayer.repaint();
+                System.out.println("--- Reset Grid:");
+                printBoard();
+            }
 
-    if("Move".equals(command)) {
-        tries = 0;
+        }
 
-        if(!gameOver) {
 
-            unseeGrid();
 
-            if(turn == RED) {
+        // --------------------------------------------------------------
+        // --------------------------------------------------------------
+        // --------------------------------------------------------------
+
+
+        // For automated play
+        public void play() {
+
+            Piece REDP = new Piece(RED);
+            Piece BLACKP = new Piece(BLACK);
+
+
+            while(!gameOver) {
                 REDP.move();
-                turnL.setText("Black's turn.");
-            }
-            else {
+                turn *= -1;
                 BLACKP.move();
-                turnL.setText("Red's turn.");
-            } 
-            turn *= -1;
-
-        }
-        else {
-            controls.remove(move);
-            System.out.println("GAME OVER");
-            if(RED == turn) winner.setText("RED WON!");
-            else winner.setText("BLACK WON!");
-            return;
+            }
         }
 
+        public void init() {
 
-    }
-    else if("Reset".equals(command)) {
+            initGrid();
+            drawBoard();
+            initControls();
+            //		play();
 
-        initGrid();
-        piecesLayer.repaint();
-        System.out.println("--- Reset Grid:");
-        printBoard();
-    }
-
-}
+        }
 
 
-
-// --------------------------------------------------------------
-// --------------------------------------------------------------
-// --------------------------------------------------------------
-
-
-// For automated play
-public void play() {
-
-    Piece REDP = new Piece(RED);
-    Piece BLACKP = new Piece(BLACK);
-
-
-    while(!gameOver) {
-        REDP.move();
-        turn *= -1;
-        BLACKP.move();
-    }
-}
-
-public void init() {
-
-    initGrid();
-    drawBoard();
-    initControls();
-    //		play();
-
-}
-
-
-}  // end class
+    }  // end class
