@@ -18,9 +18,6 @@ public class Checkers extends JApplet implements ActionListener {
     int BLACK = -1;
     int EMPTY = 0;
 
-    int turn = 1; // red starts
-    int tries = 0; // lame attempt at detecting when no moves exist
-
     // Pale colors for the board
     Color pred = new Color(255, 128, 128);
     Color pblack = new Color(125, 125, 125);
@@ -32,6 +29,7 @@ public class Checkers extends JApplet implements ActionListener {
     int numr = 12;
     int numb = 12; // initial number of pieces
 
+    int turn = 1; // red starts
     JLabel turnL; // Whose turn is it?
     JLabel winner;
     boolean gameOver = false;
@@ -320,8 +318,8 @@ public class Checkers extends JApplet implements ActionListener {
                 boolean canStep = this.trySteps();
                 return canStep;
             }
-      
-      } // end tryAll
+
+        } // end tryAll
 
         public boolean tryJumps() {
 
@@ -332,74 +330,7 @@ public class Checkers extends JApplet implements ActionListener {
             // ------------------- Try all jumps --------------------- 
             // -------------------------------------------------------
 
-            if(p.hasNW2()) {
-
-                Piece nw1 = grid[p.x + (1 * color)][p.y + (1 * color)];
-                Piece nw2 = grid[p.x + (2 * color)][p.y + (2 * color)];
-
-                if(EMPTY == nw2.color && EMPTY != nw1.color 
-                        && p.color != nw1.color) {
-
-                    System.out.print("NW: ");
-                    log(p, nw2, nw1);
-
-                    // Move to nw2. Eat nw1.
-                    grid[nw2.x][nw2.y] = new Piece(p.color, nw2.x, nw2.y);  
-                    grid[nw1.x][nw1.y] = new Piece(EMPTY, nw1.x ,nw1.y);
-                    grid[p.x][p.y] = new Piece(EMPTY, p.x, p.y);
-
-
-                    if(nw1.color == RED) numr--;
-                    else numb--;
-                    if(0 == numr || 0 ==numb) gameOver = true;
-
-
-                    if(grid[nw2.x][nw2.y].madeKing() || p.isKing) {
-                        grid[nw2.x][nw2.y].isKing = true;
-                    }
-
-                    printBoard();
-                    piecesLayer.repaint();
-
-                    // Call p.tryAll()? To see if there is 1+ move for this piece
-                    // Actually - you'd only try all jumps!
-                    return true;
-                }
-
-            } // end if NW jump
-
-            else if(p.hasNE2()) {
-
-                Piece ne1 = grid[p.x + (1 * color)][p.y + (-1 * color)];
-                Piece ne2 = grid[p.x + (2 * color)][p.y + (-2 * color)];
-
-                if(EMPTY == ne2.color && EMPTY != ne1.color && p.color != ne1.color) {
-                    System.out.print("NE: ");
-                    log(p, ne2, ne1);
-
-                    // Move to ne2.  Eat ne1.
-                    grid[ne2.x][ne2.y] = new Piece(p.color, ne2.x, ne2.y);
-                    grid[ne1.x][ne1.y] = new Piece(EMPTY, ne1.x , ne1.y);
-                    grid[p.x][p.y] = new Piece(EMPTY, p.x, p.y);
-
-                    if(RED == ne1.color) numr--;
-                    else numb--;
-                    if(0 == numr || 0 ==numb) gameOver = true;
-
-
-                    if(grid[ne2.x][ne2.y].madeKing() || p.isKing) {
-                        grid[ne2.x][ne2.y].isKing = true;
-                    }
-
-                    printBoard();
-                    piecesLayer.repaint();
-                    return true;
-
-                }
-
-            } // end NE jump
-
-            else if(p.isKing && p.hasSW2()) {
+            if(p.isKing && p.hasSW2()) {
 
                 Piece sw1 = grid[x + (1 * -color)][y + (1 * -color)];
                 Piece sw2 = grid[x + (2 * -color)][y + (2 * -color)];
@@ -429,6 +360,9 @@ public class Checkers extends JApplet implements ActionListener {
                     printBoard();
                     piecesLayer.repaint();
 
+                    // You could jump multiple times:
+                    // UNTESTED!
+                    grid[sw2.x][sw2.y].tryJumps();
 
                     return true;
 
@@ -470,7 +404,9 @@ public class Checkers extends JApplet implements ActionListener {
 
 
                     // If it can jump, try jumping again!
-                    // grid[se2.x][se2.y].tryJumps();
+                    // UNTESTED!
+                    grid[se2.x][se2.y].tryJumps();
+
                     return true;
 
                 }
@@ -478,71 +414,102 @@ public class Checkers extends JApplet implements ActionListener {
             } // end SE jump
 
 
+            else if(p.hasNW2()) {
 
-        // No jumps possible.
-        return false;
+                Piece nw1 = grid[p.x + (1 * color)][p.y + (1 * color)];
+                Piece nw2 = grid[p.x + (2 * color)][p.y + (2 * color)];
+
+                if(EMPTY == nw2.color && EMPTY != nw1.color 
+                        && p.color != nw1.color) {
+
+                    System.out.print("NW: ");
+                    log(p, nw2, nw1);
+
+                    // Move to nw2. Eat nw1.
+                    grid[nw2.x][nw2.y] = new Piece(p.color, nw2.x, nw2.y);  
+                    grid[nw1.x][nw1.y] = new Piece(EMPTY, nw1.x ,nw1.y);
+                    grid[p.x][p.y] = new Piece(EMPTY, p.x, p.y);
+
+
+                    if(nw1.color == RED) numr--;
+                    else numb--;
+                    if(0 == numr || 0 ==numb) gameOver = true;
+
+
+                    if(grid[nw2.x][nw2.y].madeKing() || p.isKing) {
+                        grid[nw2.x][nw2.y].isKing = true;
+                    }
+
+                    printBoard();
+                    piecesLayer.repaint();
+
+
+                    // You could jump multiple times:
+                    // UNTESTED!
+                    grid[nw2.x][nw2.y].tryJumps();
+
+
+                    return true;
+                }
+
+            } // end if NW jump
+
+            else if(p.hasNE2()) {
+
+                Piece ne1 = grid[p.x + (1 * color)][p.y + (-1 * color)];
+                Piece ne2 = grid[p.x + (2 * color)][p.y + (-2 * color)];
+
+                if(EMPTY == ne2.color && EMPTY != ne1.color && p.color != ne1.color) {
+                    System.out.print("NE: ");
+                    log(p, ne2, ne1);
+
+                    // Move to ne2.  Eat ne1.
+                    grid[ne2.x][ne2.y] = new Piece(p.color, ne2.x, ne2.y);
+                    grid[ne1.x][ne1.y] = new Piece(EMPTY, ne1.x , ne1.y);
+                    grid[p.x][p.y] = new Piece(EMPTY, p.x, p.y);
+
+                    if(RED == ne1.color) numr--;
+                    else numb--;
+                    if(0 == numr || 0 ==numb) gameOver = true;
+
+
+                    if(grid[ne2.x][ne2.y].madeKing() || p.isKing) {
+                        grid[ne2.x][ne2.y].isKing = true;
+                    }
+
+                    printBoard();
+                    piecesLayer.repaint();
+
+                    // You could jump multiple times:
+                    // UNTESTED!
+                    grid[ne2.x][ne2.y].tryJumps();
+
+                    return true;
+
+                }
+
+            } // end NE jump
+
+
+
+
+            // No jumps possible.
+            return false;
 
         } // end tryJumps
 
 
         public boolean trySteps() {
 
-         Piece p = this;
+            Piece p = this;
 
             // -------------------------------------------------------
             // ------------------- Try all steps --------------------- 
             // -------------------------------------------------------
 
-            if(p.hasNW1()) {
 
-                // NW step
-                Piece nw1 = grid[p.x + (1 * color)][p.y + (1 * color)];
 
-                if(EMPTY == nw1.color) {
-
-                    System.out.print("NW: ");
-                    log(p, nw1);
-
-                    grid[nw1.x][nw1.y] = new Piece(p.color, nw1.x, nw1.y);
-                    grid[p.x][p.y] = new Piece(EMPTY, p.x, p.y);
-
-                    if(grid[nw1.x][nw1.y].madeKing() || p.isKing) {
-                        grid[nw1.x][nw1.y].isKing = true;
-                    }
-
-                    printBoard();
-                    piecesLayer.repaint();
-                    return true;
-
-                }
-
-            } // end NW step
-
-            else if(p.hasNE1()) {
-
-                Piece ne1 = grid[p.x + (1 * color)][p.y + (-1 * color)];
-
-                if(EMPTY == ne1.color) {
-
-                    System.out.print("NE: ");
-                    log(p, ne1);
-
-                    grid[ne1.x][ne1.y] = new Piece(p.color, ne1.x, ne1.y);
-                    grid[p.x][p.y] = new Piece(EMPTY, p.x, p.y);
-
-                    if(grid[ne1.x][ne1.y].madeKing() || p.isKing) {
-                        grid[ne1.x][ne1.y].isKing = true;
-                    }
-
-                    printBoard();
-                    piecesLayer.repaint();
-                    return true;			
-
-                }
-
-            } // end NE step
-
-            else if(p.isKing && p.hasSE1()) {
+            if(p.isKing && p.hasSE1()) {
 
                 Piece se1 = grid[x + (1 * -color)][y + (-1 * -color)];
 
@@ -592,8 +559,58 @@ public class Checkers extends JApplet implements ActionListener {
             } // end SW step
 
 
-        // No steps possible.
-        return false;
+            else if(p.hasNW1()) {
+
+                // NW step
+                Piece nw1 = grid[p.x + (1 * color)][p.y + (1 * color)];
+
+                if(EMPTY == nw1.color) {
+
+                    System.out.print("NW: ");
+                    log(p, nw1);
+
+                    grid[nw1.x][nw1.y] = new Piece(p.color, nw1.x, nw1.y);
+                    grid[p.x][p.y] = new Piece(EMPTY, p.x, p.y);
+
+                    if(grid[nw1.x][nw1.y].madeKing() || p.isKing) {
+                        grid[nw1.x][nw1.y].isKing = true;
+                    }
+
+                    printBoard();
+                    piecesLayer.repaint();
+                    return true;
+
+                }
+
+            } // end NW step
+
+            else if(p.hasNE1()) {
+
+                Piece ne1 = grid[p.x + (1 * color)][p.y + (-1 * color)];
+
+                if(EMPTY == ne1.color) {
+
+                    System.out.print("NE: ");
+                    log(p, ne1);
+
+                    grid[ne1.x][ne1.y] = new Piece(p.color, ne1.x, ne1.y);
+                    grid[p.x][p.y] = new Piece(EMPTY, p.x, p.y);
+
+                    if(grid[ne1.x][ne1.y].madeKing() || p.isKing) {
+                        grid[ne1.x][ne1.y].isKing = true;
+                    }
+
+                    printBoard();
+                    piecesLayer.repaint();
+                    return true;			
+
+                }
+
+            } // end NE step
+
+
+            // No steps possible.
+            return false;
 
         } // end trySteps
 
