@@ -281,6 +281,8 @@ public class Checkers extends JApplet implements ActionListener {
         // Used to alternate turns.  Only valid colors matter. 
         public void move() {
 
+            System.out.println("------------------------------------");
+
             // Methodically search for a piece to move.  
             // Of course, it always plays the same game. 
             for(int i = 0; i < 8; i++) {
@@ -296,11 +298,12 @@ public class Checkers extends JApplet implements ActionListener {
                 }
             }
 
-            System.out.println("--- No moves found.  Turn/Game over?");
+            // As of now, black should be the winner.
+            System.out.println(this + " has run out of moves!");
+            gameOver = true;
             printBoard();
             return;
 
-            // FIXME: A turn can be more than one move.  Call tryAll when returning true.
             // FIXME: How do you know when there are no more moves available?
         } // end move()
 
@@ -312,10 +315,13 @@ public class Checkers extends JApplet implements ActionListener {
             System.out.println("Examining " + this + " at " + this.getCoords());
 
             boolean canJump = this.tryJumps();
-            if(canJump)
-                return true;
+            System.out.println("--- canJump = " + canJump);
+
+
+            if(canJump) return true;
             else {
                 boolean canStep = this.trySteps();
+                System.out.println("--- canStep = " + canStep);
                 return canStep;
             }
 
@@ -325,6 +331,11 @@ public class Checkers extends JApplet implements ActionListener {
 
             Piece p = this;
 
+
+            // FIXME: Multiple jumps work, however doesn't always detect a 
+            // jump is possible.  check if else statements.
+            // Ex: would rather step forward then jump backwards.
+            // rather step west then jump east when king.
 
             // -------------------------------------------------------
             // ------------------- Try all jumps --------------------- 
@@ -362,7 +373,13 @@ public class Checkers extends JApplet implements ActionListener {
 
                     // You could jump multiple times:
                     // UNTESTED!
+                    System.out.println("Keep jumping?" + grid[sw2.x][sw2.y] 
+                        + grid[sw2.x][sw2.y].getCoords());
+
                     grid[sw2.x][sw2.y].tryJumps();
+
+                    System.out.println("--- Stop Jumping.");
+                    
 
                     return true;
 
@@ -371,7 +388,7 @@ public class Checkers extends JApplet implements ActionListener {
 
             } // end SW jump
 
-            else if(p.isKing && p.hasSE2()) {
+            if(p.isKing && p.hasSE2()) {
 
                 Piece se1 = grid[x + (1 * -color)][ y + (-1 * -color)];
                 Piece se2 = grid[x + (2 * -color)][y + (-2 * -color)];
@@ -405,7 +422,13 @@ public class Checkers extends JApplet implements ActionListener {
 
                     // If it can jump, try jumping again!
                     // UNTESTED!
+                    System.out.println("Keep jumping?" + grid[se2.x][se2.y] 
+                        + grid[se2.x][se2.y].getCoords());
+
                     grid[se2.x][se2.y].tryJumps();
+
+                    System.out.println("--- Stop Jumping.");
+                    
 
                     return true;
 
@@ -414,7 +437,7 @@ public class Checkers extends JApplet implements ActionListener {
             } // end SE jump
 
 
-            else if(p.hasNW2()) {
+            if(p.hasNW2()) {
 
                 Piece nw1 = grid[p.x + (1 * color)][p.y + (1 * color)];
                 Piece nw2 = grid[p.x + (2 * color)][p.y + (2 * color)];
@@ -446,7 +469,11 @@ public class Checkers extends JApplet implements ActionListener {
 
                     // You could jump multiple times:
                     // UNTESTED!
+                    System.out.println("Keep jumping?" + grid[nw2.x][nw2.y] 
+                        + grid[nw2.x][nw2.y].getCoords());
                     grid[nw2.x][nw2.y].tryJumps();
+                    System.out.println("--- Stop Jumping.");
+
 
 
                     return true;
@@ -454,7 +481,7 @@ public class Checkers extends JApplet implements ActionListener {
 
             } // end if NW jump
 
-            else if(p.hasNE2()) {
+            if(p.hasNE2()) {
 
                 Piece ne1 = grid[p.x + (1 * color)][p.y + (-1 * color)];
                 Piece ne2 = grid[p.x + (2 * color)][p.y + (-2 * color)];
@@ -482,7 +509,10 @@ public class Checkers extends JApplet implements ActionListener {
 
                     // You could jump multiple times:
                     // UNTESTED!
+                    System.out.println("Keep jumping?" + grid[ne2.x][ne2.y] 
+                        + grid[ne2.x][ne2.y].getCoords());
                     grid[ne2.x][ne2.y].tryJumps();
+                    System.out.println("--- Stop Jumping.");
 
                     return true;
 
@@ -500,6 +530,10 @@ public class Checkers extends JApplet implements ActionListener {
 
 
         public boolean trySteps() {
+
+
+            // FIXME: If a king the the "earliest" piece, it gets caught in a 
+            // loop bc it can only move one step either way.
 
             Piece p = this;
 
@@ -533,7 +567,7 @@ public class Checkers extends JApplet implements ActionListener {
 
             } // end SE step
 
-            else if(p.isKing && p.hasSW1()) {
+            if(p.isKing && p.hasSW1()) {
 
                 Piece sw1 = grid[x + (1 * -color)][y + (1 * -color)];
 
@@ -559,10 +593,12 @@ public class Checkers extends JApplet implements ActionListener {
             } // end SW step
 
 
-            else if(p.hasNW1()) {
+            if(p.hasNW1()) {
 
                 // NW step
                 Piece nw1 = grid[p.x + (1 * color)][p.y + (1 * color)];
+
+                 System.out.println("--- Found nw1: " + nw1 + " at " + nw1.getCoords());
 
                 if(EMPTY == nw1.color) {
 
@@ -584,9 +620,13 @@ public class Checkers extends JApplet implements ActionListener {
 
             } // end NW step
 
-            else if(p.hasNE1()) {
+            if(p.hasNE1()) {
 
                 Piece ne1 = grid[p.x + (1 * color)][p.y + (-1 * color)];
+
+            // NE STEP IS NOT WORKING
+            // r at (2,4) should be returning true for a ne step!
+                System.out.println("--- Found ne1: " + ne1 + " at " + ne1.getCoords());
 
                 if(EMPTY == ne1.color) {
 
