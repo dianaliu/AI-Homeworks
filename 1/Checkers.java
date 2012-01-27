@@ -6,9 +6,8 @@ import javax.swing.*;
 public class Checkers extends JApplet implements ActionListener {
 
 
-    // TODO: Make private fields and methods
     // TODO: Throw exceptions
-    // TODO: Refactor
+    // TODO: Refactor & Make private fields and methods
 
 
     // Array representing the board
@@ -18,6 +17,14 @@ public class Checkers extends JApplet implements ActionListener {
     int BLACK = -1;
     int EMPTY = 0;
 
+    int numr = 12;
+    int numb = 12; // initial number of pieces
+
+    int turn = 1; // red starts
+    boolean gameOver = false;
+
+    // -----------------------------------
+
     // Pale colors for the board
     Color pred = new Color(255, 128, 128);
     Color pblack = new Color(125, 125, 125);
@@ -26,35 +33,31 @@ public class Checkers extends JApplet implements ActionListener {
     Color red = Color.red;
     Color black = Color.black;
 
-    int numr = 12;
-    int numb = 12; // initial number of pieces
+    // -----------------------------------
 
-    int turn = 1; // red starts
-    JLabel turnL; // Whose turn is it?
+    JLabel turnL; 
     JLabel winner;
-    boolean gameOver = false;
-
+    
     JButton move;
     JPanel controls;
 
-    Display display; 	 // the board
-    PiecesLayer piecesLayer; // the pieces
-    JLayeredPane lp;	 // wrapper for board and pieces
+    BoardLayer board; 	 // the board
+    PiecesLayer pieces; // the pieces
+    JLayeredPane wrapper;	 // wrapper for board and pieces
 
 
-    class Display extends JPanel {
+    class BoardLayer extends JPanel {
 
-        Display() {
-            // Constructor for the Display class.
-            setPreferredSize(new Dimension(504, 504));       
+        BoardLayer() {
+
+            setPreferredSize(new Dimension(504, 504));  
         }
 
         public void paint(Graphics g){
 
-            /*  Draw a red-and-black checkerboard.
-                Each square is 63 pixels, making for a board of 504 pixels.  
-             */
-
+        // Draw a 8x8 checkerboard of 504 pixels.
+        // Each square is 63 pixels.
+    
             int row;   // Row number, from 0 to 7
             int col;   // Column number, from 0 to 7
             int x,y;   // Top-left corner of square
@@ -62,8 +65,10 @@ public class Checkers extends JApplet implements ActionListener {
             for ( row = 0;  row < 8;  row++ ) {
 
                 for ( col = 0;  col < 8;  col++) {
+
                     x = col * 63;
                     y = row * 63;
+
                     if ( (row % 2) == (col % 2) )
                         g.setColor(pred);
                     else
@@ -72,22 +77,28 @@ public class Checkers extends JApplet implements ActionListener {
                     g.fillRect(x, y, 63, 63);
                 } 
 
-            } // end for row
+            } // end for loop
 
         } // end paintComponent
 
-    } // end nested class Display
+    } // end nested class BoardLayer
+
+
+    // --------------------------------------------------------------
+    // --------------------------------------------------------------
+    // --------------------------------------------------------------
+
 
     class PiecesLayer extends JPanel {
 
         PiecesLayer() {
-            // Constructor
+
             setPreferredSize(new Dimension(504, 504));  
             setOpaque(false);
         }
 
         public void paint(Graphics g) {
-            int x;
+            int x; 
             int y;
 
             for(int i = 0; i < 8; i++) { // row
@@ -122,6 +133,7 @@ public class Checkers extends JApplet implements ActionListener {
 
     } // end nested class PiecesLayer
 
+
     // --------------------------------------------------------------
     // --------------------------------------------------------------
     // --------------------------------------------------------------
@@ -129,13 +141,11 @@ public class Checkers extends JApplet implements ActionListener {
 
     class Piece extends Object {
 
-        // What methods should Piece have?
-
         int color;
         boolean isKing;
         int x;
         int y;
-        boolean seen; // used to select next avail piece
+        boolean seen; // (not) used to select next avail piece
 
         Piece() {
             // default Constructor, not used.
@@ -167,7 +177,6 @@ public class Checkers extends JApplet implements ActionListener {
             return y;
         }
 
-
         public String getCoords() {
             return "(" + x + ", " + y + ")";
         }
@@ -188,7 +197,10 @@ public class Checkers extends JApplet implements ActionListener {
         }
 
 
-        // Checks if a NW move stays on the board
+        // ---------------------------------------------
+
+
+        // Checks if a NW1 step stays on the board
         public boolean hasNW1() {
 
             if(x + (1 * color) < 8 && x + (1 * color) >= 0 && 
@@ -199,7 +211,7 @@ public class Checkers extends JApplet implements ActionListener {
             return false;
         }
 
-        // Checks if a NW move stays on the board
+        // Checks if a NW2 jump stays on the board
         public boolean hasNW2() {
 
             if(x + (2 * color) < 8 && x + (2 * color) >= 0 && 
@@ -210,7 +222,7 @@ public class Checkers extends JApplet implements ActionListener {
             return false;
         }
 
-        // Checks if a NE move stays on the board
+        // Checks if a NE1 step stays on the board
         public boolean hasNE1() {
 
             if(x + (1 * color) < 8 && x + (1 * color) >= 0 &&
@@ -220,7 +232,7 @@ public class Checkers extends JApplet implements ActionListener {
             return false;
         }
 
-        // Checks if a NE move stays on the board
+        // Checks if a NE2 jump stays on the board
         public boolean hasNE2() {
 
             if(x + (2 * color) < 8 && x + (2 * color) >= 0 &&
@@ -230,10 +242,10 @@ public class Checkers extends JApplet implements ActionListener {
             return false;
         }
 
-        // Checks if a SW step stays on the board
+        // Checks if a SW1 step stays on the board
         public boolean hasSW1() {
 
-            // As if NW1, but in the opposite color/direction
+            // Same as NW1, but in the opposite direction (color)
             if(x + (1 * -color) < 8 && x + (1 * -color) >= 0 && 
                     y + (1 * -color) < 8 && y + (1 * -color) >= 0) {
                 return true;
@@ -242,7 +254,7 @@ public class Checkers extends JApplet implements ActionListener {
             return false;
         }
 
-        // Checks if a SW jump stays on the board
+        // Checks if a SW2 jump stays on the board
         public boolean hasSW2() {
 
             if(x + (2 * -color) < 8 && x + (2 * -color) >= 0 && 
@@ -254,7 +266,7 @@ public class Checkers extends JApplet implements ActionListener {
         }
 
 
-        // Checks if a SE move stays on the board
+        // Checks if a SE step stays on the board
         public boolean hasSE1() {
 
             if(x + (1 * -color) < 8 && x + (1 * -color) >= 0 &&
@@ -265,7 +277,7 @@ public class Checkers extends JApplet implements ActionListener {
             return false;
         }
 
-        // Checks if a SE move stays on the board
+        // Checks if a SE jump stays on the board
         public boolean hasSE2() {
 
             if(x + (2 * -color) < 8 && x + (2 * -color) >= 0 &&
@@ -278,13 +290,23 @@ public class Checkers extends JApplet implements ActionListener {
         }
 
 
-        // Used to alternate turns.  Only valid colors matter. 
+        // ---------------------------------------------
+
+
+        // Finds the next free piece and tries moving it.
+        // If none are found, game is over.
         public void move() {
+
+            // FIXME: Better algorithm to pick next piece
+            // If there are jumps available, I don't always take it 
+            // because I encountered another moveable piece before seeing it.
+            // TODO: Depending on the color, search from other end.
+            // TODO: Introduce randomness.  Currently always plays the same game.
+            
 
             System.out.println("------------------------------------");
 
-            // Methodically search for a piece to move.  
-            // Of course, it always plays the same game. 
+            // Search for a piece to move.  
             for(int i = 0; i < 8; i++) {
                 for(int j = 0; j < 8; j++) {
 
@@ -298,55 +320,43 @@ public class Checkers extends JApplet implements ActionListener {
                 }
             }
 
-            // As of now, black should be the winner.
+            // In current sim, black should be the winner.
             System.out.println(this + " has run out of moves!");
             gameOver = true;
             printBoard();
             return;
 
-            // FIXME: How do you know when there are no more moves available?
-        } // end move()
+} // end move()
 
-
-
-        // try all moves for a piece
+        // See if a piece can jump, can step. 
         public boolean tryAll() {
 
-            System.out.println("Examining " + this + " at " + this.getCoords());
+//            System.out.println("Examining " + this + " at " + this.getCoords());
 
             boolean canJump = this.tryJumps();
-            System.out.println("--- canJump = " + canJump);
-
 
             if(canJump) return true;
             else {
                 boolean canStep = this.trySteps();
-                System.out.println("--- canStep = " + canStep);
                 return canStep;
             }
 
-        } // end tryAll
+        } // end tryAll()
 
+
+        // Try jumping in this order: SW, SE, NW, NE.
         public boolean tryJumps() {
 
             Piece p = this;
-
-
-            // FIXME: Multiple jumps work, however doesn't always detect a 
-            // jump is possible.  check if else statements.
-            // Ex: would rather step forward then jump backwards.
-            // rather step west then jump east when king.
-
-            // -------------------------------------------------------
-            // ------------------- Try all jumps --------------------- 
-            // -------------------------------------------------------
 
             if(p.isKing && p.hasSW2()) {
 
                 Piece sw1 = grid[x + (1 * -color)][y + (1 * -color)];
                 Piece sw2 = grid[x + (2 * -color)][y + (2 * -color)];
 
-                if(EMPTY == sw2.color && EMPTY != sw1.color && p.color != sw1.color) {
+                if(EMPTY == sw2.color 
+                    && EMPTY != sw1.color && p.color != sw1.color) {
+
                     System.out.print("SW: ");
                     log(p, sw2, sw1);
 
@@ -369,16 +379,14 @@ public class Checkers extends JApplet implements ActionListener {
 
                     // Re-draw
                     printBoard();
-                    piecesLayer.repaint();
+                    pieces.repaint();
 
-                    // You could jump multiple times:
-                    // UNTESTED!
-                    System.out.println("Keep jumping?" + grid[sw2.x][sw2.y] 
-                        + grid[sw2.x][sw2.y].getCoords());
+//                    System.out.println("Keep jumping?" + grid[sw2.x][sw2.y] 
+//                        + grid[sw2.x][sw2.y].getCoords());
 
                     grid[sw2.x][sw2.y].tryJumps();
 
-                    System.out.println("--- Stop Jumping.");
+//                    System.out.println("--- Stop Jumping.");
                     
 
                     return true;
@@ -417,17 +425,15 @@ public class Checkers extends JApplet implements ActionListener {
 
                     // Re-draw
                     printBoard();
-                    piecesLayer.repaint();
+                    pieces.repaint();
 
 
-                    // If it can jump, try jumping again!
-                    // UNTESTED!
-                    System.out.println("Keep jumping?" + grid[se2.x][se2.y] 
-                        + grid[se2.x][se2.y].getCoords());
+//                    System.out.println("Keep jumping?" + grid[se2.x][se2.y] 
+//                        + grid[se2.x][se2.y].getCoords());
 
                     grid[se2.x][se2.y].tryJumps();
 
-                    System.out.println("--- Stop Jumping.");
+//                    System.out.println("--- Stop Jumping.");
                     
 
                     return true;
@@ -442,8 +448,8 @@ public class Checkers extends JApplet implements ActionListener {
                 Piece nw1 = grid[p.x + (1 * color)][p.y + (1 * color)];
                 Piece nw2 = grid[p.x + (2 * color)][p.y + (2 * color)];
 
-                if(EMPTY == nw2.color && EMPTY != nw1.color 
-                        && p.color != nw1.color) {
+                if(EMPTY == nw2.color 
+                    && EMPTY != nw1.color && p.color != nw1.color) {
 
                     System.out.print("NW: ");
                     log(p, nw2, nw1);
@@ -464,15 +470,12 @@ public class Checkers extends JApplet implements ActionListener {
                     }
 
                     printBoard();
-                    piecesLayer.repaint();
+                    pieces.repaint();
 
-
-                    // You could jump multiple times:
-                    // UNTESTED!
-                    System.out.println("Keep jumping?" + grid[nw2.x][nw2.y] 
-                        + grid[nw2.x][nw2.y].getCoords());
+//                    System.out.println("Keep jumping?" + grid[nw2.x][nw2.y] 
+//                        + grid[nw2.x][nw2.y].getCoords());
                     grid[nw2.x][nw2.y].tryJumps();
-                    System.out.println("--- Stop Jumping.");
+//                    System.out.println("--- Stop Jumping.");
 
 
 
@@ -486,7 +489,9 @@ public class Checkers extends JApplet implements ActionListener {
                 Piece ne1 = grid[p.x + (1 * color)][p.y + (-1 * color)];
                 Piece ne2 = grid[p.x + (2 * color)][p.y + (-2 * color)];
 
-                if(EMPTY == ne2.color && EMPTY != ne1.color && p.color != ne1.color) {
+                if(EMPTY == ne2.color 
+                    && EMPTY != ne1.color && p.color != ne1.color) {
+
                     System.out.print("NE: ");
                     log(p, ne2, ne1);
 
@@ -505,14 +510,12 @@ public class Checkers extends JApplet implements ActionListener {
                     }
 
                     printBoard();
-                    piecesLayer.repaint();
+                    pieces.repaint();
 
-                    // You could jump multiple times:
-                    // UNTESTED!
-                    System.out.println("Keep jumping?" + grid[ne2.x][ne2.y] 
-                        + grid[ne2.x][ne2.y].getCoords());
+//                    System.out.println("Keep jumping?" + grid[ne2.x][ne2.y] 
+//                        + grid[ne2.x][ne2.y].getCoords());
                     grid[ne2.x][ne2.y].tryJumps();
-                    System.out.println("--- Stop Jumping.");
+//                    System.out.println("--- Stop Jumping.");
 
                     return true;
 
@@ -520,28 +523,20 @@ public class Checkers extends JApplet implements ActionListener {
 
             } // end NE jump
 
-
-
-
             // No jumps possible.
             return false;
 
         } // end tryJumps
 
-
+        // Try stepping in this order: SE, SW, NW, NE.
         public boolean trySteps() {
 
-
-            // FIXME: If a king the the "earliest" piece, it gets caught in a 
-            // loop bc it can only move one step either way.
+            // FIXME: If a king's the the "earliest" piece (always picked in 
+            // current algorithm) and has no neighbors, it gets caught in a loop
+            // bc it can only move one step either way.  
+            // Should be fixed when a smarter choosing algorithm is introduced.
 
             Piece p = this;
-
-            // -------------------------------------------------------
-            // ------------------- Try all steps --------------------- 
-            // -------------------------------------------------------
-
-
 
             if(p.isKing && p.hasSE1()) {
 
@@ -560,7 +555,7 @@ public class Checkers extends JApplet implements ActionListener {
                     }
 
                     printBoard();
-                    piecesLayer.repaint();
+                    pieces.repaint();
                     return true;			
 
                 }
@@ -584,11 +579,10 @@ public class Checkers extends JApplet implements ActionListener {
                     }
 
                     printBoard();
-                    piecesLayer.repaint();
+                    pieces.repaint();
                     return true;			
 
                 }
-
 
             } // end SW step
 
@@ -597,8 +591,6 @@ public class Checkers extends JApplet implements ActionListener {
 
                 // NW step
                 Piece nw1 = grid[p.x + (1 * color)][p.y + (1 * color)];
-
-                 System.out.println("--- Found nw1: " + nw1 + " at " + nw1.getCoords());
 
                 if(EMPTY == nw1.color) {
 
@@ -613,7 +605,7 @@ public class Checkers extends JApplet implements ActionListener {
                     }
 
                     printBoard();
-                    piecesLayer.repaint();
+                    pieces.repaint();
                     return true;
 
                 }
@@ -623,10 +615,6 @@ public class Checkers extends JApplet implements ActionListener {
             if(p.hasNE1()) {
 
                 Piece ne1 = grid[p.x + (1 * color)][p.y + (-1 * color)];
-
-            // NE STEP IS NOT WORKING
-            // r at (2,4) should be returning true for a ne step!
-                System.out.println("--- Found ne1: " + ne1 + " at " + ne1.getCoords());
 
                 if(EMPTY == ne1.color) {
 
@@ -641,7 +629,7 @@ public class Checkers extends JApplet implements ActionListener {
                     }
 
                     printBoard();
-                    piecesLayer.repaint();
+                    pieces.repaint();
                     return true;			
 
                 }
@@ -652,9 +640,10 @@ public class Checkers extends JApplet implements ActionListener {
             // No steps possible.
             return false;
 
-        } // end trySteps
+        } // end trySteps()
 
 
+        // Check if a move has resulted in a piece made King
         public boolean madeKing() {
 
             if(RED == this.color && 7 == this.x) {
@@ -665,48 +654,49 @@ public class Checkers extends JApplet implements ActionListener {
             }
 
             return false;
-        }
+        } // end madeKing()
 
-    } // end nexted class Pieces
+    } // end nested class Pieces
 
 
     // --------------------------------------------------------------
     // --------------------------------------------------------------
     // --------------------------------------------------------------
+
 
     public void drawBoard() {
 
         // Use a Layered Pane to hold the board
-        lp = new JLayeredPane();
-        lp.setPreferredSize(new Dimension(504, 504)); 
-        // Layout messes with layering, must use absolute positions
-        //		lp.setLayout(new BorderLayout()); 
-        getContentPane().add(lp, BorderLayout.CENTER);
+        wrapper = new JLayeredPane();
+        wrapper.setPreferredSize(new Dimension(504, 504)); 
+        // Using a LayoutManager, like BorderLayout, messes with layering. 
+        // Must use absolute positions instead.
+        //		wrapper.setLayout(new BorderLayout()); 
+        getContentPane().add(wrapper, BorderLayout.CENTER);
 
         // Draw the blank board 
-        display = new Display();
-        display.setBounds(0,0,504,504);
-        lp.add(display, new Integer(0), 0);
+        board = new BoardLayer();
+        board.setBounds(0,0,504,504);
+        wrapper.add(board, new Integer(0), 0);
 
-        //		lp.add(display, BorderLayout.CENTER, JLayeredPane.DEFAULT_LAYER);
-        //		getContentPane().add(display, BorderLayout.CENTER);
+        //		wrapper.add(board, BorderLayout.CENTER, JLayeredPane.DEFAULT_LAYER);
 
 
         // Draw the pieces
-        piecesLayer = new PiecesLayer();
-        piecesLayer.setBounds(0,0,504,504);
-        lp.add(piecesLayer, new Integer(1), 0);
+        pieces = new PiecesLayer();
+        pieces.setBounds(0,0,504,504);
+        wrapper.add(pieces, new Integer(1), 0);
 
-        //		lp.add(piecesLayer, BorderLayout.CENTER, new Integer(20));
-        //		getContentPane().add(piecesLayer, BorderLayout.CENTER);
-
-        System.out.println("--- Current Board:");
+        //		wrapper.add(pieces, BorderLayout.CENTER, new Integer(20));
+       
+        System.out.println("--- Initial Board:");
         printBoard();
 
-    }
+    } // end drawBoard()
 
 
     int numSeen = 0;
+    // Not used
     public void unseeGrid() {
 
         // Mark all points as un-visited.  Used to choose next piece to move.
@@ -717,10 +707,11 @@ public class Checkers extends JApplet implements ActionListener {
         }
 
         numSeen = 0;
-    } // end unseeGrid
+    } // end unseeGrid()
 
 
     public void initGrid() {
+
         // Clear out the grid
         for(int r = 0; r < 8; r++) {
             for(int c = 0; c < 8; c++) {
@@ -746,17 +737,17 @@ public class Checkers extends JApplet implements ActionListener {
         }
 
 
-    }
+    } // end initGrid()
 
 
     public void initControls() {
-        // Draw the controls
+
         controls = new JPanel();
         controls.setBackground(Color.gray);
 
         move = new JButton("Move");
         move.addActionListener(this);	
-        controls.add(move); // add to panel
+        controls.add(move); 
 
         turnL = new JLabel("Red starts.");
         controls.add(turnL);
@@ -770,11 +761,12 @@ public class Checkers extends JApplet implements ActionListener {
 
         getContentPane().add(controls, BorderLayout.SOUTH);
 
-    }
+    } // end initControls()
 
 
+    // Used to monitor game via console
     public void printBoard() {
-        // Print board to console
+
         for(int i = 0; i<grid.length; i++) {
             for(int j = 0; j < 8; j++) {
                 System.out.print(grid[i][j] + "-");
@@ -783,12 +775,13 @@ public class Checkers extends JApplet implements ActionListener {
             System.out.println();
         }
 
-    }
+    } // end printBoard()
 
 
+    // Event listeners for buttons
     public void actionPerformed(ActionEvent evt) { 
-        // Event listenrs for buttons
-        String command = evt.getActionCommand();
+       
+       String command = evt.getActionCommand();
 
         Piece REDP = new Piece(RED);
         Piece BLACKP = new Piece(BLACK);
@@ -796,8 +789,6 @@ public class Checkers extends JApplet implements ActionListener {
         if("Move".equals(command)) {
 
             if(!gameOver) {
-
-                //           unseeGrid();
 
                 if(turn == RED) {
                     REDP.move();
@@ -811,7 +802,10 @@ public class Checkers extends JApplet implements ActionListener {
                 turn *= -1;
             }
             else {
+                // FIXME: Remove button more cleanly.
+                // It becomes un-clickable, but still shows.
                 controls.remove(move);
+
                 System.out.println("GAME OVER");
                 if(RED == turn) winner.setText("RED WON!");
                 else winner.setText("BLACK WON!");
@@ -823,7 +817,7 @@ public class Checkers extends JApplet implements ActionListener {
         else if("Reset".equals(command)) {
 
             initGrid();
-            piecesLayer.repaint();
+            pieces.repaint();
             System.out.println("--- Reset Grid:");
             printBoard();
         }
@@ -831,14 +825,14 @@ public class Checkers extends JApplet implements ActionListener {
     }
 
 
-
     // --------------------------------------------------------------
-    // --------------------------------------------------------------
-    // --------------------------------------------------------------
+   
 
-
+    // Not used.
     // For automated play
     public void play() {
+
+        // TODO: Make this actually work
 
         Piece REDP = new Piece(RED);
         Piece BLACKP = new Piece(BLACK);
@@ -849,7 +843,7 @@ public class Checkers extends JApplet implements ActionListener {
             turn *= -1;
             BLACKP.move();
         }
-    }
+    } // end play()
 
     public void init() {
 
@@ -858,7 +852,7 @@ public class Checkers extends JApplet implements ActionListener {
         initControls();
         //		play();
 
-    }
+    } // end init()
 
 
 }  // end class
