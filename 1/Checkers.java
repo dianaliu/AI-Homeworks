@@ -190,7 +190,7 @@ public class Checkers extends JApplet implements ActionListener {
         }
 
 
-        // Checks if a NW move is possible
+        // Checks if a NW move stays on the board
         public boolean hasNW1() {
 
             if(x + (1 * color) < 8 && x + (1 * color) >= 0 && 
@@ -201,10 +201,9 @@ public class Checkers extends JApplet implements ActionListener {
             return false;
         }
 
-        // Checks if a NW move is possible
+        // Checks if a NW move stays on the board
         public boolean hasNW2() {
 
-            // "this" is not necessary, instance method.
             if(x + (2 * color) < 8 && x + (2 * color) >= 0 && 
                     y + (2 * color) < 8 && y + (2 * color) >= 0) {
                 return true;
@@ -213,7 +212,7 @@ public class Checkers extends JApplet implements ActionListener {
             return false;
         }
 
-        // Checks if a NE move is possible
+        // Checks if a NE move stays on the board
         public boolean hasNE1() {
 
             if(x + (1 * color) < 8 && x + (1 * color) >= 0 &&
@@ -223,7 +222,7 @@ public class Checkers extends JApplet implements ActionListener {
             return false;
         }
 
-        // Checks if a NE move is possible
+        // Checks if a NE move stays on the board
         public boolean hasNE2() {
 
             if(x + (2 * color) < 8 && x + (2 * color) >= 0 &&
@@ -233,24 +232,50 @@ public class Checkers extends JApplet implements ActionListener {
             return false;
         }
 
-        // Checks if a SW move is possible
+        // Checks if a SW step stays on the board
         public boolean hasSW1() {
+
+            // As if NW1, but in the opposite color/direction
+            if(x + (1 * -color) < 8 && x + (1 * -color) >= 0 && 
+                    y + (1 * -color) < 8 && y + (1 * -color) >= 0) {
+                return true;
+            }
+
             return false;
         }
 
-        // Checks if a SW move is possible
+        // Checks if a SW jump stays on the board
         public boolean hasSW2() {
+
+            if(x + (2 * -color) < 8 && x + (2 * -color) >= 0 && 
+                    y + (2 * -color) < 8 && y + (2 * -color) >= 0) {
+                return true;
+            }
+
             return false;
         }
 
 
-        // Checks if a SE move is possible
+        // Checks if a SE move stays on the board
         public boolean hasSE1() {
+
+            if(x + (1 * -color) < 8 && x + (1 * -color) >= 0 &&
+                    y + (-1 * -color) < 8 && y + (-1 * -color) >= 0) {
+                return true;
+            }
+
             return false;
         }
 
-        // Checks if a SE move is possible
+        // Checks if a SE move stays on the board
         public boolean hasSE2() {
+
+            if(x + (2 * -color) < 8 && x + (2 * -color) >= 0 &&
+                    y + (-2 * -color) < 8 && y + (-2 * -color) >= 0) {
+                return true;
+            }
+
+
             return false;
         }
 
@@ -294,7 +319,7 @@ public class Checkers extends JApplet implements ActionListener {
             // ------------------- Try all jumps --------------------- 
             // -------------------------------------------------------
 
-           if(p.hasNW2()) {
+            if(p.hasNW2()) {
 
                 Piece nw1 = grid[p.x + (1 * color)][p.y + (1 * color)];
                 Piece nw2 = grid[p.x + (2 * color)][p.y + (2 * color)];
@@ -316,8 +341,10 @@ public class Checkers extends JApplet implements ActionListener {
                     if(0 == numr || 0 ==numb) gameOver = true;
 
 
-                    if(grid[nw2.x][nw2.y].madeKing())grid[nw2.x][nw2.y].isKing = true;
-               
+                    if(grid[nw2.x][nw2.y].madeKing()) {
+                        grid[nw2.x][nw2.y].isKing = true;
+                    }
+
                     printBoard();
                     piecesLayer.repaint();
 
@@ -353,7 +380,84 @@ public class Checkers extends JApplet implements ActionListener {
                     return true;
 
                 }
+
             } // end NE jump
+
+            else if(p.isKing && p.hasSW2()) {
+
+                Piece sw1 = grid[x + (1 * -color)][y + (1 * -color)];
+                Piece sw2 = grid[x + (2 * -color)][y + (2 * -color)];
+
+                        if(EMPTY == sw2.color && EMPTY != sw1.color && p.color != sw1.color) {
+                        System.out.print("SW: ");
+                        log(p, sw2, sw1);
+
+                        // Move to sw2.  Eat sw1.
+                        grid[sw2.x][sw2.y] = new Piece(p.color, sw2.x, sw2.y);
+                        grid[sw1.x][sw1.y] = new Piece(EMPTY, sw1.x, sw1.y);
+                        grid[p.x][p.y] = new Piece(EMPTY, p.x, p.y);
+
+
+                        // Decrement num pieces
+                        if(sw1.color == RED) numr--;
+                        else numb--;
+                        if(0 == numr || 0 ==numb) gameOver = true;
+
+
+                        // Check for king-ship
+                        if(grid[sw2.x][sw2.y].madeKing()) {
+                            grid[sw2.x][sw2.y].isKing = true;
+                        }
+
+                        // Re-draw
+                        printBoard();
+                        piecesLayer.repaint();
+
+
+                        return true;
+
+                        }
+
+
+            } // end SW jump
+
+            else if(p.isKing && p.hasSE2()) {
+
+                Piece se1 = grid[x + (1 * -color)][ y + (-1 * -color)];
+                Piece se2 = grid[x + (2 * -color)][y + (-2 * -color)];
+
+                if(EMPTY == se2.color 
+                    && EMPTY != se1.color && p.color != se1.color) {
+                    System.out.print("SW: ");
+                    log(p, se2, se1);
+
+                    // Move to se2.  Eat se1.
+                    grid[se2.x][se2.y] = new Piece(p.color, se2.x, se2.y);
+                    grid[se1.x][se1.y] = new Piece(EMPTY, se1.x, se1.y);
+                    grid[p.x][p.y] = new Piece(EMPTY, p.x, p.y);
+
+
+                    // Decrement num pieces
+                    if(se1.color == RED) numr--;
+                    else numb--;
+                    if(0 == numr || 0 ==numb) gameOver = true;
+
+
+                    // Check for king-ship
+                    if(grid[se2.x][se2.y].madeKing()) {
+                        grid[se2.x][se2.y].isKing = true;
+                    }
+
+                    // Re-draw
+                    printBoard();
+                    piecesLayer.repaint();
+
+
+                    return true;
+
+                }
+
+            } // end SE jump
 
             // -------------------------------------------------------
             // ------------------- Try all steps --------------------- 
@@ -380,9 +484,7 @@ public class Checkers extends JApplet implements ActionListener {
 
                 }
 
-  //              System.out.println("--- FAIL: NW step");
-
-            } // end NW check
+            } // end NW step
 
             else if(p.hasNE1()) {
 
@@ -404,19 +506,56 @@ public class Checkers extends JApplet implements ActionListener {
 
                 }
 
-//                System.out.println("--- FAIL: NE step");
+            } // end NE step
 
-            } // end NE check
-
-
-            // --- Eligible to move backwards?
             else if(p.isKing && p.hasSE1()) {
 
-            }
+                Piece se1 = grid[x + (1 * -color)][y + (-1 * -color)];
+
+                if(EMPTY == se1.color) {
+
+                    System.out.print("SE: ");
+                    log(p, se1);
+
+                    grid[se1.x][se1.y] = new Piece(p.color, se1.x, se1.y);
+                    grid[p.x][p.y] = new Piece(EMPTY, p.x, p.y);
+
+                    if(grid[se1.x][se1.y].madeKing()) {
+                        grid[se1.x][se1.y].isKing = true;
+                    }
+
+                    printBoard();
+                    piecesLayer.repaint();
+                    return true;			
+
+                }
+            
+            } // end SE step
 
             else if(p.isKing && p.hasSW1()) {
 
-            }
+                 Piece sw1 = grid[x + (1 * -color)][y + (1 * -color)];
+
+                if(EMPTY == sw1.color) {
+
+                    System.out.print("SW: ");
+                    log(p, sw1);
+
+                    grid[sw1.x][sw1.y] = new Piece(p.color, sw1.x, sw1.y);
+                    grid[p.x][p.y] = new Piece(EMPTY, p.x, p.y);
+
+                    if(grid[sw1.x][sw1.y].madeKing()) {
+                        grid[sw1.x][sw1.y].isKing = true;
+                    }
+
+                    printBoard();
+                    piecesLayer.repaint();
+                    return true;			
+
+                }
+
+
+            } // end SW step
 
 
 
