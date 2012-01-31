@@ -1,4 +1,3 @@
-
 import java.awt.*;
 import java.awt.event.*;
 import java.applet.*;
@@ -9,17 +8,14 @@ public class Checkers extends JApplet implements ActionListener {
 
 
     // TODO: Throw exceptions
-    // TODO: Refactor & Make private fields and methods
+    // TODO: Makefile.
 
-
-    // Array representing the board
-    public static Piece[][] grid = new Piece[8][8];
 
     final Piece REDP = new Piece(Piece.RED);
     final Piece BLACKP = new Piece(Piece.BLACK);
 
 
-    int turn = 1; // red starts
+    private int turn = 1; // red starts
     static boolean gameOver = false;
 
     // -----------------------------------
@@ -106,20 +102,20 @@ public class Checkers extends JApplet implements ActionListener {
                 for(int j = 0; j < 8; j++) { // column
                     x = (63 * j + 16);
 
-                    if(Piece.RED == grid[i][j].getColor()) {
+                    if(Piece.RED == Piece.grid[i][j].getColor()) {
                         g.setColor(red);
                         g.fillOval(x, y, 30, 30);
 
 
                     }
-                    else if(Piece.BLACK == grid[i][j].getColor()) {
+                    else if(Piece.BLACK == Piece.grid[i][j].getColor()) {
                         g.setColor(black);
                         g.fillOval(x, y, 30, 30);
 
                     }
 
 
-                    if(grid[i][j].getKing()) {
+                    if(Piece.grid[i][j].getKing()) {
                         g.setColor(Color.white);
                         g.drawString("K", x, y);
                     }
@@ -181,7 +177,7 @@ public class Checkers extends JApplet implements ActionListener {
         // Mark all points as un-visited.  Used to choose next piece to move.
         for(int r = 0; r < 8; r++) {
             for(int c = 0; c < 8; c++) {
-                grid[r][c].seen = false;
+                Piece.grid[r][c].seen = false;
             }
         }
 
@@ -191,10 +187,10 @@ public class Checkers extends JApplet implements ActionListener {
 
     public void initGrid() {
 
-        // Clear out the grid
+        // Clear out the Piece.grid
         for(int r = 0; r < 8; r++) {
             for(int c = 0; c < 8; c++) {
-                grid[r][c] = new Piece(Piece.EMPTY, r, c);
+                Piece.grid[r][c] = new Piece(Piece.EMPTY, r, c);
             }
         }
 
@@ -202,7 +198,7 @@ public class Checkers extends JApplet implements ActionListener {
         for(int r = 0; r < 3; r++) {
             for(int c = 0; c < 8; c++) {
                 if ( (r % 2) == (c % 2) )
-                    grid[r][c] = new Piece(Piece.RED, r, c);
+                    Piece.grid[r][c] = new Piece(Piece.RED, r, c);
             }
         }
 
@@ -210,7 +206,7 @@ public class Checkers extends JApplet implements ActionListener {
         for(int r = 5; r < 8; r++) {
             for(int c = 0; c < 8; c++) {
                 if ( (r % 2) == (c % 2) )
-                    grid[r][c] = new Piece(Piece.BLACK, r, c);
+                    Piece.grid[r][c] = new Piece(Piece.BLACK, r, c);
 
             }
         }
@@ -246,9 +242,9 @@ public class Checkers extends JApplet implements ActionListener {
     // Used to monitor game via console
     public static void printBoard() {
 
-        for(int i = 0; i<grid.length; i++) {
+        for(int i = 0; i<Piece.grid.length; i++) {
             for(int j = 0; j < 8; j++) {
-                System.out.print(grid[i][j] + "-");
+                System.out.print(Piece.grid[i][j] + "-");
             }
 
             System.out.println();
@@ -278,9 +274,9 @@ public class Checkers extends JApplet implements ActionListener {
                 turn *= -1;
             }
             else {
-                // FIXME: Remove button more cleanly.
-                // It becomes un-clickable, but still shows.
+
                 controls.remove(move);
+		controls.repaint();
 
                 System.out.println("GAME OVER");
                 if(Piece.RED == turn) winner.setText("RED WON!");
