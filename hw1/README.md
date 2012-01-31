@@ -5,6 +5,6 @@ This is [homework 1] (http://cs.nyu.edu/courses/spring12/CSCI-UA.0472-001/checke
 
 ##To run
 ````
-javac Checkers.java
+javac Checkers.java Piece.java
 appletviewer Checkers.html
 ````
