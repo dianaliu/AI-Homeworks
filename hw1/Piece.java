@@ -1,4 +1,3 @@
-
 public class Piece extends Object {
 
 
@@ -9,6 +8,9 @@ public class Piece extends Object {
 	// initial number of pieces
 	private int numr = 12;
 	private int numb = 12; 
+
+    	// Array representing the board
+    	public static Piece[][] grid = new Piece[8][8];
 
 	// Data fields of Piece
 	private int color;
@@ -180,27 +182,39 @@ public class Piece extends Object {
 		// FIXME: Better algorithm to pick next piece
 		// If there are jumps available, I don't always take it 
 		// because I encountered another moveable piece before seeing it.
-		// TODO: Depending on the color, search from other end.
-		// TODO: Introduce randomness.  Currently always plays the same game.
 
-
+		// FIXME: Kings, when isolated, tend to repeat movements for ever & ever.
+	
 		System.out.println("------------------------------------");
 
+		// Start seraching from a random index
+		int randx = (int) (8 * Math.random());
+		int randy = (int) (8 * Math.random());
+
+
 		// Search for a piece to move.  
-		for(int i = 0; i < 8; i++) {
-			for(int j = 0; j < 8; j++) {
+		int x = randx;
+		int y = randy;
+		do {
 
-				if(this.color == Checkers.grid[i][j].color) {
+			do{
 
-					boolean hasMove = Checkers.grid[i][j].tryAll();
+				if(this.color == grid[x][y].color) {
+
+					boolean hasMove = grid[x][y].tryAll();
 					if(hasMove) return;
 
 				} // end if
 
-			}
-		}
+				y = (y + 1) % 8;
 
-		// In current sim, black should be the winner.
+			}while(y != randy);
+
+
+			x = (x + 1) % 8;
+
+		} while(x != randx);
+
 		System.out.println(this + " has run out of moves!");
 		Checkers.gameOver = true;
 		Checkers.printBoard();
@@ -231,8 +245,8 @@ public class Piece extends Object {
 
 		if(p.isKing && p.hasSW2()) {
 
-			Piece sw1 = Checkers.grid[x + (1 * -color)][y + (1 * -color)];
-			Piece sw2 = Checkers.grid[x + (2 * -color)][y + (2 * -color)];
+			Piece sw1 = grid[x + (1 * -color)][y + (1 * -color)];
+			Piece sw2 = grid[x + (2 * -color)][y + (2 * -color)];
 
 			if(EMPTY == sw2.color 
 					&& EMPTY != sw1.color && p.color != sw1.color) {
@@ -241,9 +255,9 @@ public class Piece extends Object {
 				log(p, sw2, sw1);
 
 				// Move to sw2.  Eat sw1.
-				Checkers.grid[sw2.x][sw2.y] = new Piece(p.color, sw2.x, sw2.y);
-				Checkers.grid[sw1.x][sw1.y] = new Piece(EMPTY, sw1.x, sw1.y);
-				Checkers.grid[p.x][p.y] = new Piece(EMPTY, p.x, p.y);
+				grid[sw2.x][sw2.y] = new Piece(p.color, sw2.x, sw2.y);
+				grid[sw1.x][sw1.y] = new Piece(EMPTY, sw1.x, sw1.y);
+				grid[p.x][p.y] = new Piece(EMPTY, p.x, p.y);
 
 
 				// Decrement num pieces
@@ -253,18 +267,18 @@ public class Piece extends Object {
 
 
 				// Check for king-ship
-				if(Checkers.grid[sw2.x][sw2.y].madeKing() || p.isKing) {
-					Checkers.grid[sw2.x][sw2.y].isKing = true;
+				if(grid[sw2.x][sw2.y].madeKing() || p.isKing) {
+					grid[sw2.x][sw2.y].isKing = true;
 				}
 
 				// Re-draw
 				Checkers.printBoard();
 				Checkers.pieces.repaint();
 
-				//                    System.out.println("Keep jumping?" + Checkers.grid[sw2.x][sw2.y] 
-				//                        + Checkers.grid[sw2.x][sw2.y].getCoords());
+				//                    System.out.println("Keep jumping?" + grid[sw2.x][sw2.y] 
+				//                        + grid[sw2.x][sw2.y].getCoords());
 
-				Checkers.grid[sw2.x][sw2.y].tryJumps();
+				grid[sw2.x][sw2.y].tryJumps();
 
 				//                    System.out.println("--- Stop Jumping.");
 
@@ -278,8 +292,8 @@ public class Piece extends Object {
 
 		if(p.isKing && p.hasSE2()) {
 
-			Piece se1 = Checkers.grid[x + (1 * -color)][ y + (-1 * -color)];
-			Piece se2 = Checkers.grid[x + (2 * -color)][y + (-2 * -color)];
+			Piece se1 = grid[x + (1 * -color)][ y + (-1 * -color)];
+			Piece se2 = grid[x + (2 * -color)][y + (-2 * -color)];
 
 			if(EMPTY == se2.color 
 					&& EMPTY != se1.color && p.color != se1.color) {
@@ -287,9 +301,9 @@ public class Piece extends Object {
 				log(p, se2, se1);
 
 				// Move to se2.  Eat se1.
-				Checkers.grid[se2.x][se2.y] = new Piece(p.color, se2.x, se2.y);
-				Checkers.grid[se1.x][se1.y] = new Piece(EMPTY, se1.x, se1.y);
-				Checkers.grid[p.x][p.y] = new Piece(EMPTY, p.x, p.y);
+				grid[se2.x][se2.y] = new Piece(p.color, se2.x, se2.y);
+				grid[se1.x][se1.y] = new Piece(EMPTY, se1.x, se1.y);
+				grid[p.x][p.y] = new Piece(EMPTY, p.x, p.y);
 
 
 				// Decrement num pieces
@@ -299,8 +313,8 @@ public class Piece extends Object {
 
 
 				// Check for king-ship
-				if(Checkers.grid[se2.x][se2.y].madeKing()|| p.isKing) {
-					Checkers.grid[se2.x][se2.y].isKing = true;
+				if(grid[se2.x][se2.y].madeKing()|| p.isKing) {
+					grid[se2.x][se2.y].isKing = true;
 				}
 
 				// Re-draw
@@ -308,10 +322,10 @@ public class Piece extends Object {
 				Checkers.pieces.repaint();
 
 
-				//                    System.out.println("Keep jumping?" + Checkers.grid[se2.x][se2.y] 
-				//                        + Checkers.grid[se2.x][se2.y].getCoords());
+				//                    System.out.println("Keep jumping?" + grid[se2.x][se2.y] 
+				//                        + grid[se2.x][se2.y].getCoords());
 
-				Checkers.grid[se2.x][se2.y].tryJumps();
+				grid[se2.x][se2.y].tryJumps();
 
 				//                    System.out.println("--- Stop Jumping.");
 
@@ -325,8 +339,8 @@ public class Piece extends Object {
 
 		if(p.hasNW2()) {
 
-			Piece nw1 = Checkers.grid[p.x + (1 * color)][p.y + (1 * color)];
-			Piece nw2 = Checkers.grid[p.x + (2 * color)][p.y + (2 * color)];
+			Piece nw1 = grid[p.x + (1 * color)][p.y + (1 * color)];
+			Piece nw2 = grid[p.x + (2 * color)][p.y + (2 * color)];
 
 			if(EMPTY == nw2.color 
 					&& EMPTY != nw1.color && p.color != nw1.color) {
@@ -335,9 +349,9 @@ public class Piece extends Object {
 				log(p, nw2, nw1);
 
 				// Move to nw2. Eat nw1.
-				Checkers.grid[nw2.x][nw2.y] = new Piece(p.color, nw2.x, nw2.y);  
-				Checkers.grid[nw1.x][nw1.y] = new Piece(EMPTY, nw1.x ,nw1.y);
-				Checkers.grid[p.x][p.y] = new Piece(EMPTY, p.x, p.y);
+				grid[nw2.x][nw2.y] = new Piece(p.color, nw2.x, nw2.y);  
+				grid[nw1.x][nw1.y] = new Piece(EMPTY, nw1.x ,nw1.y);
+				grid[p.x][p.y] = new Piece(EMPTY, p.x, p.y);
 
 
 				if(nw1.color == RED) numr--;
@@ -345,16 +359,16 @@ public class Piece extends Object {
 				if(0 == numr || 0 ==numb) Checkers.gameOver = true;
 
 
-				if(Checkers.grid[nw2.x][nw2.y].madeKing() || p.isKing) {
-					Checkers.grid[nw2.x][nw2.y].isKing = true;
+				if(grid[nw2.x][nw2.y].madeKing() || p.isKing) {
+					grid[nw2.x][nw2.y].isKing = true;
 				}
 
 				Checkers.printBoard();
 				Checkers.pieces.repaint();
 
-				//                    System.out.println("Keep jumping?" + Checkers.grid[nw2.x][nw2.y] 
-				//                        + Checkers.grid[nw2.x][nw2.y].getCoords());
-				Checkers.grid[nw2.x][nw2.y].tryJumps();
+				//                    System.out.println("Keep jumping?" + grid[nw2.x][nw2.y] 
+				//                        + grid[nw2.x][nw2.y].getCoords());
+				grid[nw2.x][nw2.y].tryJumps();
 				//                    System.out.println("--- Stop Jumping.");
 
 
@@ -366,8 +380,8 @@ public class Piece extends Object {
 
 		if(p.hasNE2()) {
 
-			Piece ne1 = Checkers.grid[p.x + (1 * color)][p.y + (-1 * color)];
-			Piece ne2 = Checkers.grid[p.x + (2 * color)][p.y + (-2 * color)];
+			Piece ne1 = grid[p.x + (1 * color)][p.y + (-1 * color)];
+			Piece ne2 = grid[p.x + (2 * color)][p.y + (-2 * color)];
 
 			if(EMPTY == ne2.color 
 					&& EMPTY != ne1.color && p.color != ne1.color) {
@@ -376,25 +390,25 @@ public class Piece extends Object {
 				log(p, ne2, ne1);
 
 				// Move to ne2.  Eat ne1.
-				Checkers.grid[ne2.x][ne2.y] = new Piece(p.color, ne2.x, ne2.y);
-				Checkers.grid[ne1.x][ne1.y] = new Piece(EMPTY, ne1.x , ne1.y);
-				Checkers.grid[p.x][p.y] = new Piece(EMPTY, p.x, p.y);
+				grid[ne2.x][ne2.y] = new Piece(p.color, ne2.x, ne2.y);
+				grid[ne1.x][ne1.y] = new Piece(EMPTY, ne1.x , ne1.y);
+				grid[p.x][p.y] = new Piece(EMPTY, p.x, p.y);
 
 				if(RED == ne1.color) numr--;
 				else numb--;
 				if(0 == numr || 0 ==numb) Checkers.gameOver = true;
 
 
-				if(Checkers.grid[ne2.x][ne2.y].madeKing() || p.isKing) {
-					Checkers.grid[ne2.x][ne2.y].isKing = true;
+				if(grid[ne2.x][ne2.y].madeKing() || p.isKing) {
+					grid[ne2.x][ne2.y].isKing = true;
 				}
 
 				Checkers.printBoard();
 				Checkers.pieces.repaint();
 
-				//                    System.out.println("Keep jumping?" + Checkers.grid[ne2.x][ne2.y] 
-				//                        + Checkers.grid[ne2.x][ne2.y].getCoords());
-				Checkers.grid[ne2.x][ne2.y].tryJumps();
+				//                    System.out.println("Keep jumping?" + grid[ne2.x][ne2.y] 
+				//                        + grid[ne2.x][ne2.y].getCoords());
+				grid[ne2.x][ne2.y].tryJumps();
 				//                    System.out.println("--- Stop Jumping.");
 
 				return true;
@@ -420,18 +434,18 @@ public class Piece extends Object {
 
 		if(p.isKing && p.hasSE1()) {
 
-			Piece se1 = Checkers.grid[x + (1 * -color)][y + (-1 * -color)];
+			Piece se1 = grid[x + (1 * -color)][y + (-1 * -color)];
 
 			if(EMPTY == se1.color) {
 
 				System.out.print("SE: ");
 				log(p, se1);
 
-				Checkers.grid[se1.x][se1.y] = new Piece(p.color, se1.x, se1.y);
-				Checkers.grid[p.x][p.y] = new Piece(EMPTY, p.x, p.y);
+				grid[se1.x][se1.y] = new Piece(p.color, se1.x, se1.y);
+				grid[p.x][p.y] = new Piece(EMPTY, p.x, p.y);
 
-				if(Checkers.grid[se1.x][se1.y].madeKing() || p.isKing) {
-					Checkers.grid[se1.x][se1.y].isKing = true;
+				if(grid[se1.x][se1.y].madeKing() || p.isKing) {
+					grid[se1.x][se1.y].isKing = true;
 				}
 
 				Checkers.printBoard();
@@ -444,18 +458,18 @@ public class Piece extends Object {
 
 		if(p.isKing && p.hasSW1()) {
 
-			Piece sw1 = Checkers.grid[x + (1 * -color)][y + (1 * -color)];
+			Piece sw1 = grid[x + (1 * -color)][y + (1 * -color)];
 
 			if(EMPTY == sw1.color) {
 
 				System.out.print("SW: ");
 				log(p, sw1);
 
-				Checkers.grid[sw1.x][sw1.y] = new Piece(p.color, sw1.x, sw1.y);
-				Checkers.grid[p.x][p.y] = new Piece(EMPTY, p.x, p.y);
+				grid[sw1.x][sw1.y] = new Piece(p.color, sw1.x, sw1.y);
+				grid[p.x][p.y] = new Piece(EMPTY, p.x, p.y);
 
-				if(Checkers.grid[sw1.x][sw1.y].madeKing() || p.isKing) {
-					Checkers.grid[sw1.x][sw1.y].isKing = true;
+				if(grid[sw1.x][sw1.y].madeKing() || p.isKing) {
+					grid[sw1.x][sw1.y].isKing = true;
 				}
 
 				Checkers.printBoard();
@@ -470,18 +484,18 @@ public class Piece extends Object {
 		if(p.hasNW1()) {
 
 			// NW step
-			Piece nw1 = Checkers.grid[p.x + (1 * color)][p.y + (1 * color)];
+			Piece nw1 = grid[p.x + (1 * color)][p.y + (1 * color)];
 
 			if(EMPTY == nw1.color) {
 
 				System.out.print("NW: ");
 				log(p, nw1);
 
-				Checkers.grid[nw1.x][nw1.y] = new Piece(p.color, nw1.x, nw1.y);
-				Checkers.grid[p.x][p.y] = new Piece(EMPTY, p.x, p.y);
+				grid[nw1.x][nw1.y] = new Piece(p.color, nw1.x, nw1.y);
+				grid[p.x][p.y] = new Piece(EMPTY, p.x, p.y);
 
-				if(Checkers.grid[nw1.x][nw1.y].madeKing() || p.isKing) {
-					Checkers.grid[nw1.x][nw1.y].isKing = true;
+				if(grid[nw1.x][nw1.y].madeKing() || p.isKing) {
+					grid[nw1.x][nw1.y].isKing = true;
 				}
 
 				Checkers.printBoard();
@@ -494,18 +508,18 @@ public class Piece extends Object {
 
 		if(p.hasNE1()) {
 
-			Piece ne1 = Checkers.grid[p.x + (1 * color)][p.y + (-1 * color)];
+			Piece ne1 = grid[p.x + (1 * color)][p.y + (-1 * color)];
 
 			if(EMPTY == ne1.color) {
 
 				System.out.print("NE: ");
 				log(p, ne1);
 
-				Checkers.grid[ne1.x][ne1.y] = new Piece(p.color, ne1.x, ne1.y);
-				Checkers.grid[p.x][p.y] = new Piece(EMPTY, p.x, p.y);
+				grid[ne1.x][ne1.y] = new Piece(p.color, ne1.x, ne1.y);
+				grid[p.x][p.y] = new Piece(EMPTY, p.x, p.y);
 
-				if(Checkers.grid[ne1.x][ne1.y].madeKing() || p.isKing) {
-					Checkers.grid[ne1.x][ne1.y].isKing = true;
+				if(grid[ne1.x][ne1.y].madeKing() || p.isKing) {
+					grid[ne1.x][ne1.y].isKing = true;
 				}
 
 				Checkers.printBoard();
