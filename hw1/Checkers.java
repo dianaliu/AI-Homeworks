@@ -3,6 +3,12 @@ import java.awt.event.*;
 import java.applet.*;
 import javax.swing.*; 
 
+/**
+ * HW1: A legal game of Checkers.
+ * Due Tuesday January 31, 2012.
+ *
+ * @author Diana Liu
+*/
 
 public class Checkers extends JApplet implements ActionListener {
 
@@ -168,22 +174,6 @@ public class Checkers extends JApplet implements ActionListener {
         printBoard();
 
     } // end drawBoard()
-
-
-    int numSeen = 0;
-    // Not used
-    public void unseeGrid() {
-
-        // Mark all points as un-visited.  Used to choose next piece to move.
-        for(int r = 0; r < 8; r++) {
-            for(int c = 0; c < 8; c++) {
-                Piece.grid[r][c].seen = false;
-            }
-        }
-
-        numSeen = 0;
-    } // end unseeGrid()
-
 
     public void initGrid() {
 

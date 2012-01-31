@@ -1,3 +1,10 @@
+/**
+ * HW1: A legal game of Checkers.
+ * Due Tuesday January 31, 2012.
+ *
+ * @author Diana Liu
+*/
+
 public class Piece extends Object {
 
 
@@ -12,13 +19,11 @@ public class Piece extends Object {
     	// Array representing the board
     	public static Piece[][] grid = new Piece[8][8];
 
-	// Data fields of Piece
+	// Data fields of a Piece
 	private int color;
 	private boolean isKing;
 	private int x;
 	private int y;
-	boolean seen; // (not) used to select next avail piece
-
 
 	Piece() {
 		// default Constructor, not used.
@@ -33,7 +38,6 @@ public class Piece extends Object {
 		this.x = x;
 		this.y = y;
 		isKing = false;
-		seen = false;
 	}
 
 	public String toString(){
@@ -182,8 +186,6 @@ public class Piece extends Object {
 		// FIXME: Better algorithm to pick next piece
 		// If there are jumps available, I don't always take it 
 		// because I encountered another moveable piece before seeing it.
-
-		// FIXME: Kings, when isolated, tend to repeat movements for ever & ever.
 	
 		System.out.println("------------------------------------");
 
@@ -425,10 +427,7 @@ public class Piece extends Object {
 	// Try stepping in this order: SE, SW, NW, NE.
 	public boolean trySteps() {
 
-		// FIXME: If a king's the the "earliest" piece (always picked in 
-		// current algorithm) and has no neighbors, it gets caught in a loop
-		// bc it can only move one step either way.  
-		// Should be fixed when a smarter choosing algorithm is introduced.
+		// FIXME: An isolated King can get caught in a loop, repeating the same moves.
 
 		Piece p = this;
 
