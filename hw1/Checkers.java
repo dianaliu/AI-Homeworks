@@ -14,7 +14,9 @@ public class Checkers extends JApplet implements ActionListener {
 
 
     // TODO: Throw exceptions
-    // TODO: Makefile.
+    // TODO: Makefile or learn ant.
+    // TODO: Take user inputted moves if available.
+    // TODO: Allow custom initialization of grid. 
 
 
     final Piece REDP = new Piece(Piece.RED);
@@ -36,11 +38,13 @@ public class Checkers extends JApplet implements ActionListener {
 
     // -----------------------------------
 
-    JLabel turnL; 
+    JLabel notify; 
     JLabel winner;
     
     JButton move;
     JPanel controls;
+
+    JTextField fromx, fromy, tox, toy;
 
     BoardLayer board; 	 		// the board
     static PiecesLayer pieces;		// the pieces
@@ -140,11 +144,6 @@ public class Checkers extends JApplet implements ActionListener {
     // --------------------------------------------------------------
 
 
-       // --------------------------------------------------------------
-    // --------------------------------------------------------------
-    // --------------------------------------------------------------
-
-
     public void drawBoard() {
 
         // Use a Layered Pane to hold the board
@@ -205,20 +204,111 @@ public class Checkers extends JApplet implements ActionListener {
     } // end initGrid()
 
 
+    public void modifyGrid() {
+        // Do nothing.
+
+    } // end modifyGrid()
+
+
+    // Allows initialization of grid to specific states and to over ride computer moves.
+    // Shouldn't be called directly since much validation is needed beforehand.
+    // @param color Piece.RED, Piece.BLACK, or Piece.EMPTY
+    // @param x,y The coordinates you are setting
+    public void modifyGrid(int fromx, int fromy, int tox, int toy) {
+        
+        // TODO: Check for out of bounds and illegal moves
+        // TODO: Error handling and notify.setText("ERR: Invalid " + color + "move.");
+        // NOTE: Should users be allowed to override both black and red? Yes.
+
+
+        // Set the new space
+        int color = Piece.grid[fromx][fromy].getColor();
+        Piece.grid[tox][toy] = new Piece(color, tox, toy);
+
+        // Clear the old space
+        Piece.grid[fromx][fromy] = new Piece(Piece.EMPTY, fromx, fromy);
+
+    } // end modifyGrid()
+
+
+    // Check if a TextField is valid : right length, a number between 0 - 7..
+    public boolean isValidInput() {
+
+        // TODO: Restrict data entered http://docs.oracle.com/javase/1.4.2/docs/api/java/text/NumberFormat.html
+        // FIXME: Use built-in formatting and validation
+
+        String x1 = fromx.getText();
+        String y1 = fromy.getText();
+        String x2 = tox.getText();
+        String y2 = toy.getText();
+
+        if(x1.length() == 1 && y1.length() == 1 && x2.length() == 1 && y2.length() == 1) {
+
+            // Convert to numbers
+            // FIXME: Catch errors!!! UGH.
+            int ix1 = Integer.parseInt(x1);
+            int iy1 = Integer.parseInt(y1);
+            int ix2 = Integer.parseInt(x2);
+            int iy2 = Integer.parseInt(y2);
+
+            if(inRange(ix1, iy1) && inRange(ix2, iy2)) {
+                System.out.println("On the grid...");
+                return true;
+            }
+
+        } 
+        
+        notify.setText("ERR: Invalid coordinates.");
+        System.out.println("ERR: Invalid coordinates."); 
+             
+        return false;
+
+    }
+
+    // Checks if a user entered move is legal.
+    public boolean isMove() {
+
+        return true;
+    }
+
+
+    // Tells if a coordinate is on the grid
+    public boolean inRange(int x, int y) {
+
+       if(x < 8 && x >= 0 && y < 8 && y >= 0) return true;
+
+       return false;
+
+    }
+
+
     public void initControls() {
 
         controls = new JPanel();
         controls.setBackground(Color.gray);
 
+        JLabel from = new JLabel("Move from ");
+        controls.add(from);
+
+        fromx = new JTextField(1);
+        fromy = new JTextField(1);
+        controls.add(fromx);
+        controls.add(fromy);
+
+        JLabel to = new JLabel("to");
+        controls.add(to);
+
+        tox = new JTextField(1);
+        toy = new JTextField(1);
+        controls.add(tox);
+        controls.add(toy);
+
         move = new JButton("Move");
         move.addActionListener(this);	
         controls.add(move); 
 
-        turnL = new JLabel("Red starts.");
-        controls.add(turnL);
-
-        winner = new JLabel("No winner yet.");	
-        controls.add(winner);	
+        notify = new JLabel("Red starts.");
+        controls.add(notify);
 
         JButton reset = new JButton("Reset");
         reset.addActionListener(this);
@@ -245,20 +335,35 @@ public class Checkers extends JApplet implements ActionListener {
 
     // Event listeners for buttons
     public void actionPerformed(ActionEvent evt) { 
-       
+      
        String command = evt.getActionCommand();
+
+
+       // TODO: Selectively display TextFields
+       // TODO: If all TextFields have valid data, Move calls modifyGrid 
 
         if("Move".equals(command)) {
 
             if(!gameOver) {
 
-                if(turn == Piece.RED) {
+                if(isValidInput()) {
+                    // If the textFields have valid input, make that move instead.
+                    // FIXME: Make more robust.  Current implementation trusts the user and is just
+                    // enough for the demo on Monday.
+                    
+                    modifyGrid();
+
+                }
+                else if(!isValidInput()) {
+                    notify.setText("ERR: Invalid coords.");
+                }
+                else if(turn == Piece.RED) {
                     REDP.move();
-                    turnL.setText("Black's turn.");
+                    notify.setText("Black's turn.");
                 }
                 else {
                     BLACKP.move();
-                    turnL.setText("Red's turn.");
+                    notify.setText("Red's turn.");
                 } 
 
                 turn *= -1;
@@ -266,11 +371,11 @@ public class Checkers extends JApplet implements ActionListener {
             else {
 
                 controls.remove(move);
-		controls.repaint();
+		        controls.repaint();
 
                 System.out.println("GAME OVER");
-                if(Piece.RED == turn) winner.setText("RED WON!");
-                else winner.setText("BLACK WON!");
+                if(Piece.RED == turn) notify.setText("RED WON!");
+                else notify.setText("BLACK WON!");
                 return;
             }
 
@@ -288,27 +393,14 @@ public class Checkers extends JApplet implements ActionListener {
 
 
     // --------------------------------------------------------------
-   
-
-    // Not used.
-    // For automated play
-    public void play() {
-
-        // TODO: Make this actually work
-
-        while(!gameOver) {
-            REDP.move();
-            turn *= -1;
-            BLACKP.move();
-        }
-    } // end play()
 
     public void init() {
 
         initGrid();
+        // Pass two sets of coordinates if you wish to change the initial state.
+        modifyGrid(0,0,4,2);
         drawBoard();
         initControls();
-        //		play();
 
     } // end init()
 

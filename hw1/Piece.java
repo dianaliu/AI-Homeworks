@@ -85,7 +85,6 @@ public class Piece extends Object {
 
 	// ---------------------------------------------
 
-
 	// Checks if a NW1 step stays on the board
 	public boolean hasNW1() {
 
