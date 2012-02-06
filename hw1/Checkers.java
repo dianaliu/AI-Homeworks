@@ -19,11 +19,14 @@ public class Checkers extends JApplet implements ActionListener {
     // TODO: Allow custom initialization of grid. 
 
 
+    int RED = 1;
+    int BLACK = -1;
+
     final Piece REDP = new Piece(Piece.RED);
     final Piece BLACKP = new Piece(Piece.BLACK);
 
 
-    private int turn = 1; // red starts
+    private int turn = RED; 
     static boolean gameOver = false;
 
     // -----------------------------------
@@ -204,6 +207,25 @@ public class Checkers extends JApplet implements ActionListener {
     } // end initGrid()
 
 
+    public void emptyGrid() {
+
+        // Clear out the Piece.grid
+        for(int r = 0; r < 8; r++) {
+            for(int c = 0; c < 8; c++) {
+                Piece.grid[r][c] = new Piece(Piece.EMPTY, r, c);
+            }
+        }
+
+    }
+
+
+    public void setPiece(int color, int x, int y, boolean king) {
+
+        Piece.grid[x][y] = new Piece(color, x, y, king);
+
+
+    }
+
     public void modifyGrid() {
         // Do nothing.
 
@@ -346,6 +368,8 @@ public class Checkers extends JApplet implements ActionListener {
 
             if(!gameOver) {
 
+
+/**
                 if(isValidInput()) {
                     // If the textFields have valid input, make that move instead.
                     // FIXME: Make more robust.  Current implementation trusts the user and is just
@@ -357,7 +381,12 @@ public class Checkers extends JApplet implements ActionListener {
                 else if(!isValidInput()) {
                     notify.setText("ERR: Invalid coords.");
                 }
-                else if(turn == Piece.RED) {
+                else 
+                    
+                    */
+                    
+                    
+               if(turn == Piece.RED) {
                     REDP.move();
                     notify.setText("Black's turn.");
                 }
@@ -367,6 +396,9 @@ public class Checkers extends JApplet implements ActionListener {
                 } 
 
                 turn *= -1;
+
+
+                if(Piece.numr == 0 || Piece.numb == 0) gameOver = true;
             }
             else {
 
@@ -395,10 +427,21 @@ public class Checkers extends JApplet implements ActionListener {
     // --------------------------------------------------------------
 
     public void init() {
-
         initGrid();
-        // Pass two sets of coordinates if you wish to change the initial state.
-        modifyGrid(0,0,4,2);
+//        emptyGrid();
+
+//        setPiece(RED, 3, 0, false);
+//        setPiece(BLACK, 4, 1, false);
+//        setPiece(BLACK, 6, 1, false);
+
+
+
+//           setPiece(RED, 1, 4, false);
+//           setPiece(RED, 1, 6, false);
+//           setPiece(RED, 3, 6, false);
+//           setPiece(BLACK, 4, 5, false);
+        // Pass two sets of coordinates if you wish to change the initial state.   
+ //       modifyGrid(0,0,4,2);
         drawBoard();
         initControls();
 

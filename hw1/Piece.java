@@ -13,8 +13,8 @@ public class Piece extends Object {
 	public static final int EMPTY = 0;
 
 	// initial number of pieces
-	private int numr = 12;
-	private int numb = 12; 
+    static int numr = 12;
+	static int numb = 12; 
 
     	// Array representing the board
     	public static Piece[][] grid = new Piece[8][8];
@@ -39,6 +39,13 @@ public class Piece extends Object {
 		this.y = y;
 		isKing = false;
 	}
+
+    Piece(int c, int x, int y, boolean isKing) {
+        this.color = c;
+        this.x = x;
+        this.y = y;
+        this.isKing = isKing;
+    }
 
 	public String toString(){
 		if(color == 1) return "r";
@@ -85,7 +92,9 @@ public class Piece extends Object {
 
 	// ---------------------------------------------
 
-	// Checks if a NW1 step stays on the board
+	// FIXME: Replace these with error catching DUH. <sheepish look>
+    
+    // Checks if a NW1 step stays on the board
 	public boolean hasNW1() {
 
 		if(x + (1 * color) < 8 && x + (1 * color) >= 0 && 
@@ -182,20 +191,74 @@ public class Piece extends Object {
 	// If none are found, game is over.
 	public void move() {
 
-		// FIXME: Better algorithm to pick next piece
-		// If there are jumps available, I don't always take it 
-		// because I encountered another moveable piece before seeing it.
+        if(Checkers.gameOver == true) return;
 	
 		System.out.println("------------------------------------");
 
 		// Start seraching from a random index
-		int randx = (int) (8 * Math.random());
-		int randy = (int) (8 * Math.random());
+//		int randx = (int) (8 * Math.random());
+//		int randy = (int) (8 * Math.random());
 
 
 		// Search for a piece to move.  
-		int x = randx;
-		int y = randy;
+//		int x = randx;
+//		int y = randy;
+
+
+    int x = 0;
+    int y = 0;
+
+    // TODO: Save possible moves to a list.  This is necessary for minimax, looking ahead. 
+
+    do {
+        do {
+
+
+            if(this.color == grid[x][y].color) {
+                boolean hasJump = grid[x][y].tryJumps();
+                if(hasJump) return;
+
+            }
+
+            y = (y + 1) % 8;
+
+
+        } while (y != 0);
+
+
+        x = (x + 1) % 8;
+
+    } while (x != 0);
+
+
+
+    x = 0;
+    y = 0;
+
+    do {
+        do {
+
+
+            if(this.color == grid[x][y].color) {
+                boolean hasStep = grid[x][y].trySteps();
+                if(hasStep) return;
+
+            }
+
+            y = (y + 1) % 8;
+
+
+        } while (y != 0);
+
+
+        x = (x + 1) % 8;
+
+    } while (x != 0);
+
+
+
+
+/**
 		do {
 
 			do{
@@ -215,6 +278,8 @@ public class Piece extends Object {
 			x = (x + 1) % 8;
 
 		} while(x != randx);
+
+        */
 
 		System.out.println(this + " has run out of moves!");
 		Checkers.gameOver = true;
@@ -267,10 +332,6 @@ public class Piece extends Object {
 				if(0 == numr || 0 ==numb) Checkers.gameOver = true;
 
 
-				// Check for king-ship
-				if(grid[sw2.x][sw2.y].madeKing() || p.isKing) {
-					grid[sw2.x][sw2.y].isKing = true;
-				}
 
 				// Re-draw
 				Checkers.printBoard();
@@ -278,6 +339,12 @@ public class Piece extends Object {
 
 				//                    System.out.println("Keep jumping?" + grid[sw2.x][sw2.y] 
 				//                        + grid[sw2.x][sw2.y].getCoords());
+
+				// Check for king-ship
+				if(grid[sw2.x][sw2.y].madeKing() || p.isKing) {
+					grid[sw2.x][sw2.y].isKing = true;
+                    return true;
+				}
 
 				grid[sw2.x][sw2.y].tryJumps();
 
@@ -293,6 +360,8 @@ public class Piece extends Object {
 
 		if(p.isKing && p.hasSE2()) {
 
+
+            // FIXME: Do I need p.x and p.y here?
 			Piece se1 = grid[x + (1 * -color)][ y + (-1 * -color)];
 			Piece se2 = grid[x + (2 * -color)][y + (-2 * -color)];
 
@@ -313,14 +382,17 @@ public class Piece extends Object {
 				if(0 == numr || 0 ==numb) Checkers.gameOver = true;
 
 
-				// Check for king-ship
-				if(grid[se2.x][se2.y].madeKing()|| p.isKing) {
-					grid[se2.x][se2.y].isKing = true;
-				}
 
 				// Re-draw
 				Checkers.printBoard();
 				Checkers.pieces.repaint();
+
+				// Check for king-ship
+				if(grid[se2.x][se2.y].madeKing()|| p.isKing) {
+					grid[se2.x][se2.y].isKing = true;
+                    return true;
+				}
+
 
 
 				//                    System.out.println("Keep jumping?" + grid[se2.x][se2.y] 
@@ -360,12 +432,15 @@ public class Piece extends Object {
 				if(0 == numr || 0 ==numb) Checkers.gameOver = true;
 
 
-				if(grid[nw2.x][nw2.y].madeKing() || p.isKing) {
-					grid[nw2.x][nw2.y].isKing = true;
-				}
 
 				Checkers.printBoard();
 				Checkers.pieces.repaint();
+
+               	if(grid[nw2.x][nw2.y].madeKing() || p.isKing) {
+					grid[nw2.x][nw2.y].isKing = true;
+                    return true;
+				}
+
 
 				//                    System.out.println("Keep jumping?" + grid[nw2.x][nw2.y] 
 				//                        + grid[nw2.x][nw2.y].getCoords());
@@ -400,12 +475,16 @@ public class Piece extends Object {
 				if(0 == numr || 0 ==numb) Checkers.gameOver = true;
 
 
-				if(grid[ne2.x][ne2.y].madeKing() || p.isKing) {
-					grid[ne2.x][ne2.y].isKing = true;
-				}
 
 				Checkers.printBoard();
 				Checkers.pieces.repaint();
+
+
+               	if(grid[ne2.x][ne2.y].madeKing() || p.isKing) {
+					grid[ne2.x][ne2.y].isKing = true;
+                    return true;
+				}
+
 
 				//                    System.out.println("Keep jumping?" + grid[ne2.x][ne2.y] 
 				//                        + grid[ne2.x][ne2.y].getCoords());
