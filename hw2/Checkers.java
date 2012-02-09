@@ -4,8 +4,8 @@ import java.applet.*;
 import javax.swing.*; 
 
 /**
- * HW1: A legal game of Checkers.
- * Due Tuesday January 31, 2012.
+ * HW2: A game of Checkers with some strategy.
+ * Due Monday February 13, 2012.
  *
  * @author Diana Liu
 */
@@ -28,16 +28,17 @@ public class Checkers extends JApplet implements ActionListener {
     // TODO: Take user inputted moves if available.
     // TODO: Allow custom initialization of grid. 
 
-
-    int RED = 1;
-    int BLACK = -1;
-
     final Piece REDP = new Piece(Piece.RED);
     final Piece BLACKP = new Piece(Piece.BLACK);
 
 
-    private int turn = RED; 
+    private int turn = Piece.RED; 
     static boolean gameOver = false;
+
+
+    // Count how many moves each player has made.
+    int turnR = 0;
+    int turnB = 0;
 
     // -----------------------------------
 
