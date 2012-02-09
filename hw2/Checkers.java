@@ -15,7 +15,6 @@ public class Checkers extends JApplet implements ActionListener {
 
     // TODO: HW2, keep a list of possible moves
     /**
-     * track number of turnR, turnB
      * Use color to toggle evaluation function
      * Generate game tree
      * Track the past/future state of hte grid

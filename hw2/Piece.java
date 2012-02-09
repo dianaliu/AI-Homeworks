@@ -90,11 +90,14 @@ public class Piece extends Object {
 
     }
 
+    // Be careful what you call this with!
     public void logMoves() {
 
-        System.out.println("All possible moves for " + this.info() + ":");
-        
+               
         if(!this.moves.isEmpty()) {
+
+             System.out.println("Possible moves for " 
+                + this.info() + ":");
 
             for(int i = 0; i < moves.size(); i++) {
             
@@ -112,10 +115,10 @@ public class Piece extends Object {
 
         }
         else {
-            System.out.println("this.moves() is empty");
+            System.out.println(this.info() + " has no moves.");
         }
 
-    }
+    } // end logMoves()
 
 
 
@@ -233,8 +236,11 @@ public class Piece extends Object {
 
 
 	// Finds the next free piece and tries moving it.
-	// If none are found, game is over.
-	public void move() {
+	// If none are found, game is over.	
+    public void move() {
+
+        // FIXME: Don't use "this" in move() because it's called by
+        // nonsense RED and BLACK pieces.  Only reference color. 
 
         // FIXME: Immediate detection of gameOver, 
         // currently needs a few clicks from the other player 
@@ -244,14 +250,14 @@ public class Piece extends Object {
 	
 		System.out.println("------------------------------------");
 
-        // Find all moves possible and save to list allMoves
-        this.findMoves();
+        // Find the first piece that can jump, or step.
+        Piece current = this.findMoves();
+        current.logMoves();
 
-        this.logMoves();
 
-        if(!this.moves.isEmpty()) {
-            
-            makeMove((Piece [])this.moves.get(0));
+        if(null != current) {
+
+            makeMove((Piece [])current.moves.get(0));
 
         }
         else {
@@ -262,16 +268,16 @@ public class Piece extends Object {
         }
 
 		Checkers.printBoard();
-		return;
 
 	} // end move()
 
 
-    public void findMoves() {
+    // Called by a dummy RED/BLACK piece used only for it's color.
+    // Returns the piece you ought to move.
+    public Piece findMoves() {
 
         int x = 0;
         int y = 0;
-
 
         // Ok to clear??  Don't know if we'll be passing around yet.
         this.moves.clear();
@@ -281,11 +287,14 @@ public class Piece extends Object {
             do {
 
                 if(this.color == grid[x][y].color) {
-                        // Try finding jumps first
-                        grid[x][y].addJumps();
 
-                        // Then, try finding steps
-                        grid[x][y].addSteps();
+                    // Try finding jumps first
+                    System.out.println("Finding jumps for " 
+                            + grid[x][y].info());
+                    grid[x][y].addJumps();   
+                    grid[x][y].logMoves();                 
+                    if(!grid[x][y].moves.isEmpty()) { return grid[x][y]; }
+
                 }
 
                 y = (y + 1) % 8;
@@ -295,6 +304,40 @@ public class Piece extends Object {
             x = (x + 1) % 8;
 
         } while (x != 0);
+
+
+        // Is the only way to prioritize jumps, with two loops?
+        // TODO: Can combine into one loop if addJumps returns true...
+
+
+        x = 0;
+        y = 0;
+
+        do {
+
+            do {
+
+                if(this.color == grid[x][y].color) {
+
+                    // Then, try finding steps
+                    System.out.println("Finding steps for " 
+                            + grid[x][y].info());
+                    grid[x][y].addSteps();
+                    grid[x][y].logMoves(); 
+                    if(!grid[x][y].moves.isEmpty()) { return grid[x][y]; }
+
+                }
+
+                y = (y + 1) % 8;
+
+            } while (y != 0);
+
+            x = (x + 1) % 8;
+
+        } while (x != 0);
+
+
+        return null;
 
 
     } // end findMoves()
