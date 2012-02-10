@@ -11,8 +11,6 @@ import java.util.ArrayList;
 public class Piece extends Object {
 
     // TODO: Randomize first moves.
-    // FIXME: Multiple jumps don't work!!!!
-
 
 	public static final int RED = 1;
 	public static final int BLACK = -1;
@@ -30,8 +28,6 @@ public class Piece extends Object {
 	private boolean isKing;
 	private int x;
 	private int y;
-    // FIXME: Detect multiple jumps. unused var.
-    private boolean cont;
     // Track of all possible moves for this piece
     private static ArrayList moves;
 
@@ -53,13 +49,10 @@ public class Piece extends Object {
         this.x = x;
         this.y = y;
         this.isKing = isKing;
-        cont = false;
         moves = new ArrayList();
     }
 
 	public String toString(){
-        // FIXME: Include getCoords()?
-
 		if(color == 1) return "r";
 		else if(color == -1) return "b";
 		else return "0";
@@ -90,10 +83,12 @@ public class Piece extends Object {
 
     }
 
-    // Be careful what you call this with!
-    public void logMoves() {
 
-               
+    // ---------------------------------------------
+
+
+    public void logMoves() {
+         
         if(!this.moves.isEmpty()) {
 
              System.out.println(this.info() + " has move:");
@@ -111,7 +106,6 @@ public class Piece extends Object {
 
             }
 
-
         }
         else {
             System.out.println(this.info() + " has no moves.");
@@ -120,27 +114,22 @@ public class Piece extends Object {
     } // end logMoves()
 
 
+    public void log(Piece [] m) {
 
-	// ---------------------------------------------
+        System.out.print("Move from " + m[0].info());
+        Sysystem.out.print(" to " + m[1].info());
+        if(m.length > 2) {
+            System.out.print(" and ate " + m[2].info);
+        }
+        System.out.println();
 
-
-	public void log(Piece from, Piece to) {
-		System.out.println("Moving " + from + " from " + from.getCoords() 
-				+ " to " + to.getCoords());
-	}
-
-	public void log(Piece from, Piece to, Piece ate) {
-		System.out.println("Moving " + from + " from " + from.getCoords() 
-				+ " to " + to.getCoords() + " and ate " + ate 
-				+ " at " + ate.getCoords());
-
-	}
+    }
 
 
 	// ---------------------------------------------
 
 
-    	// Check if a move has resulted in a piece made King
+    // Check if a move has resulted in a piece made King
 	public boolean madeKing() {
 
 		if(RED == this.color && 7 == this.x) {
@@ -254,15 +243,10 @@ public class Piece extends Object {
 
 	// Finds the next free piece and tries moving it.
 	// If none are found, game is over.	
-    // There may be multiple move()'s per turn. 
     public void move() {
 
-        // FIXME: Don't use "this" in move() because it's called by
+        // NOTE: Don't use "this" in move() because it's called by
         // nonsense RED and BLACK pieces.  Only reference color. 
-
-        // FIXME: Immediate detection of gameOver, 
-        // currently needs a few clicks from the other player 
-        // before detection.
 
         if(Checkers.gameOver == true) return;
 	
@@ -351,7 +335,7 @@ public class Piece extends Object {
 
 
     // Necessary to clear?
-        this.moves.clear();
+ //       this.moves.clear();
 
 
         return null;
@@ -386,22 +370,15 @@ public class Piece extends Object {
         }
 
 
-        // Re-draw each move.
+       // Re-draw each move.
        Checkers.pieces.repaint();
-
-        System.out.print("Moved:");
-        System.out.print("\tFrom " + from.info());
-        System.out.print(" To " + to.info() );
-        if(m.length > 2) { System.out.print(" Ate " + eaten.info()); }
-        System.out.println();
-
+       log(m);
 
 
         // Preserve kingship
         if(grid[from.x][from.y].isKing) {
             grid[to.x][to.y].isKing = true;
         }
-
 
         // If a piece just made king, turn is over.
         if(grid[to.x][to.y].madeKing()) {
@@ -420,15 +397,11 @@ public class Piece extends Object {
 
       }
 
-      return;
-
     } // end makeMove()
 
 
     
     public void addJumps() {
-
-        // TODO: Check for multiple jumps
 
         Piece p = this;
         p.moves.clear();
@@ -440,7 +413,6 @@ public class Piece extends Object {
 
             if(EMPTY == sw2.color 
                     && EMPTY != sw1.color && p.color != sw1.color) {
-
 
                 // Add move states from, to, eaten
                 p.moves.add(new Piece[] {p, sw2, sw1});
@@ -475,8 +447,6 @@ public class Piece extends Object {
 
                     // Add move states from, to, eaten
                     this.moves.add(new Piece[] {p, nw2, nw1});
-
-        
     
 				}
 
@@ -500,6 +470,7 @@ public class Piece extends Object {
 
     } // end addJumps()
 
+
     public void addSteps() {
 
         Piece p = this;
@@ -513,9 +484,6 @@ public class Piece extends Object {
                 // Add move states from, to
                 p.moves.add(new Piece[] {p, se1});
 
-//                System.out.println(p.info() + " has step:");
-//                System.out.println(p.moves.get(moves.size()-1));
-
             }
         } // end SE step
 
@@ -528,9 +496,6 @@ public class Piece extends Object {
 
                 // Add move states from, to
                 p.moves.add(new Piece[] {p, sw1});
-
-//                System.out.println(p.info() + " has step:");
-//                System.out.println(p.moves.get(moves.size()-1));
 
             }
 
@@ -547,9 +512,6 @@ public class Piece extends Object {
                 // Add move states from, to
                 p.moves.add(new Piece[] {p, nw1});
 
-//                System.out.println(p.info() + " has step:");
-//                System.out.println(p.moves.get(moves.size()-1));
-
             }
 
         } // end NW step
@@ -563,9 +525,6 @@ public class Piece extends Object {
 
                 // Add move states from, to
                 p.moves.add(new Piece[] {p, ne1});
-
-//                System.out.println(p.info() + " has step:");
-//                System.out.println(p.moves.get(moves.size()-1));
             }
 
         } // end NE step
