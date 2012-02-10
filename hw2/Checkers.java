@@ -31,7 +31,7 @@ public class Checkers extends JApplet implements ActionListener {
     final Piece BLACKP = new Piece(Piece.BLACK);
 
 
-    private int turn = Piece.BLACK; // Who starts?
+    private int turn = Piece.RED; // Who starts?
     public static boolean gameOver = false;
 
 
@@ -445,14 +445,16 @@ public class Checkers extends JApplet implements ActionListener {
     public void init() {
         initGrid();
 
-        // Customize grid
         /*
+        // Customize grid
         emptyGrid();
+
+        // Multiple jumps if Piece.BLACK starts.
         setPiece(Piece.RED, 1, 1);
         setPiece(Piece.RED, 3, 3);
         setPiece(Piece.BLACK, 4, 4);
         */
-
+     
 
         drawBoard();
         initControls();
